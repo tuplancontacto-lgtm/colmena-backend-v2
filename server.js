@@ -36,9 +36,9 @@ app.get('/admin-asesores.html', (req, res) => {
 // Conectar a MongoDB
 async function connectDB() {
   try {
-    const client = new MongoClient(MONGODB_URI, {
+   const client = new MongoClient(MONGODB_URI, {
   tls: true,
-  tlsAllowInvalidCertificates: true,
+  tlsInsecure: false
 });
 
     await client.connect();
@@ -406,6 +406,7 @@ connectDB().then(() => {
     console.log(`📊 Panel Admin Asesores: http://localhost:${PORT}/admin-asesores.html`);
   });
 });
+
 
 
 
