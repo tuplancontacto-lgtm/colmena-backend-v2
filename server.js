@@ -21,16 +21,7 @@ app.use(cors({
 app.use(express.json());
 app.use(express.static('.'));
 app.use(express.static(path.join(__dirname)));
-```
 
-4. **Commit:** "Agregar static files configuration"
-
-5. **Vercel redeploya automáticamente**
-
-6. **Espera 5 minutos**
-
-7. **Prueba:**
-```
 https://colmena-backend-v2-prod.vercel.app/admin-asesores.html
 
 // Servir admin.html
@@ -411,5 +402,5 @@ connectDB().then(() => {
     console.log(`🚀 Servidor corriendo en http://localhost:${PORT}`);
     console.log(`📊 Panel Admin Asesores: http://localhost:${PORT}/admin-asesores.html`);
   });
-
 });
+
