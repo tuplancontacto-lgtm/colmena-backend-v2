@@ -22,7 +22,6 @@ app.use(express.json());
 app.use(express.static('.'));
 app.use(express.static(path.join(__dirname)));
 
-https://colmena-backend-v2-prod.vercel.app/admin-asesores.html
 
 // Servir admin.html
 app.get('/admin.html', (req, res) => {
@@ -403,4 +402,5 @@ connectDB().then(() => {
     console.log(`📊 Panel Admin Asesores: http://localhost:${PORT}/admin-asesores.html`);
   });
 });
+
 
