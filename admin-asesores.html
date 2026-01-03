@@ -571,6 +571,8 @@
                                 <button class="btn-small btn-renovar" onclick="renovarAsesor('${asesor.url_slug}')">Renovar</button>
                                 <button class="btn-small btn-revocar" onclick="revocarAsesor('${asesor.url_slug}')">Revocar</button>
                                 <button class="btn-small btn-copiar" onclick="verActividad('${asesor.url_slug}', '${asesor.nombre}')">Actividad</button>
+                                <button class="btn-small btn-editar" onclick="editarAsesor('${asesor.url_slug}')">Editar</button>
+                                <button class="btn-small btn-eliminar" onclick="eliminarAsesor('${asesor.url_slug}')">Eliminar</button>
                             </div>
                         </td>
                     </tr>
@@ -722,6 +724,59 @@
             stats[2].textContent = '0'; // Accesos hoy (se actualizaría con polling)
             stats[3].textContent = '0'; // Cotizaciones hoy
         }
+        async function editarAsesor(slug) {
+  const nuevoNombre = prompt('Nuevo nombre:');
+  const nuevoEmail = prompt('Nuevo email:');
+  const nuevoTelefono = prompt('Nuevo teléfono:');
+  
+  if (!nuevoNombre || !nuevoEmail || !nuevoTelefono) {
+    alert('Todos los campos son requeridos');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/asesores/${slug}/editar`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        nombre: nuevoNombre,
+        email: nuevoEmail,
+        telefono: nuevoTelefono
+      })
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      alert('✅ Asesor actualizado');
+      cargarAsesores();
+    } else {
+      alert('❌ Error: ' + data.error);
+    }
+  } catch (error) {
+    alert('Error: ' + error);
+  }
+}
+
+async function eliminarAsesor(slug) {
+  if (!confirm(`¿Seguro que quieres eliminar este asesor?`)) return;
+
+  try {
+    const response = await fetch(`${API_URL}/asesores/${slug}/eliminar`, {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
+    });
+
+    const data = await response.json();
+    if (data.success) {
+      alert('✅ Asesor eliminado');
+      cargarAsesores();
+    } else {
+      alert('❌ Error: ' + data.error);
+    }
+  } catch (error) {
+    alert('Error: ' + error);
+  }
+}
     </script>
 </body>
 </html>
