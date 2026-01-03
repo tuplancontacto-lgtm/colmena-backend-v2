@@ -1,0 +1,727 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel Admin - Gestión de Asesores Colmena</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        header {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        header h1 {
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .content {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+
+        .card h2 {
+            color: #333;
+            margin-bottom: 20px;
+            font-size: 20px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background: #5568d3;
+        }
+
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+
+        .asesores-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+
+        .asesores-table thead {
+            background: #f5f5f5;
+        }
+
+        .asesores-table th {
+            padding: 12px;
+            text-align: left;
+            color: #333;
+            font-weight: 600;
+            border-bottom: 2px solid #ddd;
+            font-size: 13px;
+        }
+
+        .asesores-table td {
+            padding: 12px;
+            border-bottom: 1px solid #eee;
+            font-size: 13px;
+        }
+
+        .asesores-table tr:hover {
+            background: #f9f9f9;
+        }
+
+        .url-slug {
+            font-family: 'Courier New', monospace;
+            background: #f0f0f0;
+            padding: 3px 6px;
+            border-radius: 3px;
+            font-size: 12px;
+            color: #667eea;
+            font-weight: bold;
+        }
+
+        .status {
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status.activo {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status.expirado {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status.revocado {
+            background: #e2e3e5;
+            color: #383d41;
+        }
+
+        .status.suspendido {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 11px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.3s;
+            color: white;
+        }
+
+        .btn-renovar {
+            background: #28a745;
+        }
+
+        .btn-renovar:hover {
+            background: #218838;
+        }
+
+        .btn-revocar {
+            background: #dc3545;
+        }
+
+        .btn-revocar:hover {
+            background: #c82333;
+        }
+
+        .btn-suspender {
+            background: #ffc107;
+            color: #333;
+        }
+
+        .btn-suspender:hover {
+            background: #e0a800;
+        }
+
+        .btn-copiar {
+            background: #17a2b8;
+        }
+
+        .btn-copiar:hover {
+            background: #138496;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.visible {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h3 {
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .modal-buttons button {
+            flex: 1;
+        }
+
+        .btn-cancel {
+            background: #6c757d;
+        }
+
+        .btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                grid-template-columns: 1fr;
+            }
+
+            .asesores-table {
+                font-size: 11px;
+            }
+
+            .asesores-table th,
+            .asesores-table td {
+                padding: 8px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn-small {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>👥 Panel de Administración - Asesores Colmena</h1>
+            <p>Gestiona URLs, expiración y actividad de tus asesores</p>
+        </header>
+
+        <div class="stats" id="estadisticas">
+            <div class="stat-card">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Asesores Activos</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Por Vencer</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Accesos Hoy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">0</div>
+                <div class="stat-label">Cotizaciones Hoy</div>
+            </div>
+        </div>
+
+        <div class="content">
+            <!-- Formulario de creación -->
+            <div class="card">
+                <h2>Crear Nuevo Asesor</h2>
+                <div id="alert"></div>
+                
+                <form id="formAsesor">
+                    <div class="form-group">
+                        <label for="nombre">Nombre del Asesor *</label>
+                        <input type="text" id="nombre" required placeholder="Juan Pérez">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email *</label>
+                        <input type="email" id="email" required placeholder="juan@example.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="telefono">Teléfono *</label>
+                        <input type="tel" id="telefono" required placeholder="+56912345678">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="empresa">Empresa *</label>
+                        <input type="text" id="empresa" required placeholder="Colmena">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dias">Días de acceso *</label>
+                        <select id="dias" required>
+                            <option value="">-- Selecciona --</option>
+                            <option value="7">7 días</option>
+                            <option value="15">15 días</option>
+                            <option value="30">30 días</option>
+                            <option value="60">60 días</option>
+                            <option value="90">90 días</option>
+                            <option value="180">180 días</option>
+                        </select>
+                    </div>
+
+                    <button type="submit">Crear Asesor</button>
+                </form>
+            </div>
+
+            <!-- Lista de asesores -->
+            <div class="card">
+                <h2>Asesores Registrados</h2>
+
+                <div id="asesorContainer" class="loading">
+                    <div class="spinner"></div> Cargando asesores...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para ver actividad -->
+    <div id="modalActividad" class="modal">
+        <div class="modal-content">
+            <h3>Actividad de <span id="asesorNombre"></span></h3>
+            <div id="actividadLista"></div>
+            <div class="modal-buttons">
+                <button class="btn-cancel" onclick="cerrarModal()">Cerrar</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:5000/api';
+
+        // Cargar asesores al iniciar
+        cargarAsesores();
+
+        // Escuchar envío del formulario
+        document.getElementById('formAsesor').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            await crearAsesor();
+        });
+
+        async function crearAsesor() {
+            const nombre = document.getElementById('nombre').value;
+            const email = document.getElementById('email').value;
+            const telefono = document.getElementById('telefono').value;
+            const empresa = document.getElementById('empresa').value;
+            const dias_pagados = document.getElementById('dias').value;
+
+            try {
+                const response = await fetch(`${API_URL}/asesores/crear`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        nombre,
+                        email,
+                        telefono,
+                        empresa,
+                        dias_pagados
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarAlerta('✅ Asesor creado correctamente', 'success');
+                    document.getElementById('formAsesor').reset();
+                    cargarAsesores();
+                } else {
+                    mostrarAlerta('❌ Error: ' + data.error, 'error');
+                }
+            } catch (error) {
+                mostrarAlerta('❌ Error de conexión', 'error');
+                console.error(error);
+            }
+        }
+
+        async function cargarAsesores() {
+            try {
+                const response = await fetch(`${API_URL}/asesores`);
+                const asesores = await response.json();
+
+                renderizarAsesores(asesores);
+                actualizarEstadisticas(asesores);
+            } catch (error) {
+                document.getElementById('asesorContainer').innerHTML = '<div class="alert alert-error">Error cargando asesores</div>';
+                console.error(error);
+            }
+        }
+
+        function renderizarAsesores(asesores) {
+            if (asesores.length === 0) {
+                document.getElementById('asesorContainer').innerHTML = '<p style="color: #666;">No hay asesores registrados</p>';
+                return;
+            }
+
+            let html = `
+                <table class="asesores-table">
+                    <thead>
+                        <tr>
+                            <th>Asesor</th>
+                            <th>URL</th>
+                            <th>Expiración</th>
+                            <th>Estado</th>
+                            <th>Accesos</th>
+                            <th>Cotizaciones</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            asesores.forEach(asesor => {
+                const estado = getEstadoAsesor(asesor);
+                const estadoClass = estado.class;
+                const estadoTexto = estado.text;
+                const fechaExpiracion = new Date(asesor.fecha_expiracion).toLocaleDateString('es-CL');
+                const diasRestantes = Math.ceil((new Date(asesor.fecha_expiracion) - new Date()) / (1000 * 60 * 60 * 24));
+
+                html += `
+                    <tr>
+                        <td>
+                            <strong>${asesor.nombre}</strong><br>
+                            <small style="color: #666;">${asesor.email}</small>
+                        </td>
+                        <td>
+                            <span class="url-slug">/${asesor.url_slug}</span><br>
+                            <small>${asesor.url}</small>
+                        </td>
+                        <td>
+                            ${fechaExpiracion}<br>
+                            <small style="color: ${diasRestantes < 5 ? '#dc3545' : '#666'}">${diasRestantes > 0 ? diasRestantes + ' días' : 'Expirado'}</small>
+                        </td>
+                        <td><span class="status ${estadoClass}">${estadoTexto}</span></td>
+                        <td>${asesor.accesos_total || 0}</td>
+                        <td>${asesor.cotizaciones_generadas || 0}</td>
+                        <td>
+                            <div class="action-buttons">
+                                <button class="btn-small btn-copiar" onclick="copiarURL('${asesor.url}')">Copiar URL</button>
+                                <button class="btn-small btn-renovar" onclick="renovarAsesor('${asesor.url_slug}')">Renovar</button>
+                                <button class="btn-small btn-revocar" onclick="revocarAsesor('${asesor.url_slug}')">Revocar</button>
+                                <button class="btn-small btn-copiar" onclick="verActividad('${asesor.url_slug}', '${asesor.nombre}')">Actividad</button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                </table>
+            `;
+
+            document.getElementById('asesorContainer').innerHTML = html;
+        }
+
+        function getEstadoAsesor(asesor) {
+            const ahora = new Date();
+            const vencimiento = new Date(asesor.fecha_expiracion);
+
+            if (asesor.estado === 'revocado') {
+                return { text: 'Revocado', class: 'revocado' };
+            }
+
+            if (asesor.estado === 'suspendido') {
+                return { text: 'Suspendido', class: 'suspendido' };
+            }
+
+            if (ahora > vencimiento) {
+                return { text: 'Expirado', class: 'expirado' };
+            }
+
+            return { text: 'Activo', class: 'activo' };
+        }
+
+        async function copiarURL(url) {
+            try {
+                await navigator.clipboard.writeText(url);
+                alert('✅ URL copiada al portapapeles');
+            } catch {
+                alert('No se pudo copiar: ' + url);
+            }
+        }
+
+        async function renovarAsesor(slug) {
+            const dias = prompt('¿Cuántos días de renovación?', '30');
+            if (!dias) return;
+
+            try {
+                const response = await fetch(`${API_URL}/asesores/${slug}/renovar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ dias: parseInt(dias) })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarAlerta('✅ Asesor renovado por ' + dias + ' días', 'success');
+                    cargarAsesores();
+                } else {
+                    mostrarAlerta('❌ Error renovando', 'error');
+                }
+            } catch (error) {
+                mostrarAlerta('❌ Error de conexión', 'error');
+            }
+        }
+
+        async function revocarAsesor(slug) {
+            if (!confirm('¿Estás seguro? Esto desactivará la URL del asesor.')) return;
+
+            const razon = prompt('Razón de revocación (opcional):');
+
+            try {
+                const response = await fetch(`${API_URL}/asesores/${slug}/revocar`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ razon: razon || 'Sin especificar' })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    mostrarAlerta('✅ Asesor revocado correctamente', 'success');
+                    cargarAsesores();
+                } else {
+                    mostrarAlerta('❌ Error revocando', 'error');
+                }
+            } catch (error) {
+                mostrarAlerta('❌ Error de conexión', 'error');
+            }
+        }
+
+        async function verActividad(slug, nombre) {
+            try {
+                const response = await fetch(`${API_URL}/asesores/${slug}/actividad`);
+                const actividad = await response.json();
+
+                let html = '<div style="max-height: 400px; overflow-y: auto;">';
+
+                if (actividad.length === 0) {
+                    html += '<p style="color: #666;">Sin actividad</p>';
+                } else {
+                    actividad.forEach(registro => {
+                        const fecha = new Date(registro.fecha).toLocaleString('es-CL');
+                        const tipo = registro.tipo === 'cotizacion' ? '💰' : '👤';
+                        html += `
+                            <div style="padding: 10px; border-bottom: 1px solid #eee; font-size: 12px;">
+                                <strong>${tipo} ${registro.cliente_nombre}</strong><br>
+                                ${registro.tipo === 'cotizacion' ? `Planes: ${registro.plan1} / ${registro.plan2}` : 'Acceso a landing'}<br>
+                                <small style="color: #999;">${fecha}</small>
+                            </div>
+                        `;
+                    });
+                }
+
+                html += '</div>';
+
+                document.getElementById('asesorNombre').textContent = nombre;
+                document.getElementById('actividadLista').innerHTML = html;
+                document.getElementById('modalActividad').classList.add('visible');
+            } catch (error) {
+                alert('Error cargando actividad');
+            }
+        }
+
+        function cerrarModal() {
+            document.getElementById('modalActividad').classList.remove('visible');
+        }
+
+        function mostrarAlerta(mensaje, tipo) {
+            const alertDiv = document.getElementById('alert');
+            alertDiv.innerHTML = `<div class="alert alert-${tipo}">${mensaje}</div>`;
+
+            setTimeout(() => {
+                alertDiv.innerHTML = '';
+            }, 5000);
+        }
+
+        function actualizarEstadisticas(asesores) {
+            const ahora = new Date();
+            const activos = asesores.filter(a => a.estado === 'activo' && ahora <= new Date(a.fecha_expiracion)).length;
+            const porVencer = asesores.filter(a => {
+                const dias = Math.ceil((new Date(a.fecha_expiracion) - ahora) / (1000 * 60 * 60 * 24));
+                return dias > 0 && dias <= 5;
+            }).length;
+
+            const stats = document.querySelectorAll('.stat-number');
+            stats[0].textContent = activos;
+            stats[1].textContent = porVencer;
+            stats[2].textContent = '0'; // Accesos hoy (se actualizaría con polling)
+            stats[3].textContent = '0'; // Cotizaciones hoy
+        }
+    </script>
+</body>
+</html>
