@@ -383,7 +383,49 @@ app.post('/api/asesores/:slug/activar', async (req, res) => {
     res.status(500).json({ error: 'Error activando asesor' });
   }
 });
+// EDITAR ASESOR
+app.put('/api/asesores/:slug/editar', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { nombre, email, telefono } = req.body;
 
+    if (!nombre || !email || !telefono) {
+      return res.status(400).json({ error: 'Faltan datos' });
+    }
+
+    const resultado = await asesorCollection.updateOne(
+      { url_slug: slug },
+      { $set: { nombre, email, telefono } }
+    );
+
+    if (resultado.modifiedCount === 0) {
+      return res.status(404).json({ error: 'Asesor no encontrado' });
+    }
+
+    res.json({ success: true, message: 'Asesor actualizado' });
+  } catch (error) {
+    console.error('Error editando asesor:', error);
+    res.status(500).json({ error: 'Error editando asesor' });
+  }
+});
+
+// ELIMINAR ASESOR
+app.delete('/api/asesores/:slug/eliminar', async (req, res) => {
+  try {
+    const { slug } = req.params;
+
+    const resultado = await asesorCollection.deleteOne({ url_slug: slug });
+
+    if (resultado.deletedCount === 0) {
+      return res.status(404).json({ error: 'Asesor no encontrado' });
+    }
+
+    res.json({ success: true, message: 'Asesor eliminado' });
+  } catch (error) {
+    console.error('Error eliminando asesor:', error);
+    res.status(500).json({ error: 'Error eliminando asesor' });
+  }
+});
 // ============================================
 // RUTA DINÁMICA PARA ASESORES (IMPORTANTE)
 // ============================================
@@ -406,6 +448,7 @@ connectDB().then(() => {
     console.log(`📊 Panel Admin Asesores: http://localhost:${PORT}/admin-asesores.html`);
   });
 });
+
 
 
 
