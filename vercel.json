@@ -8,17 +8,16 @@
   ],
   "routes": [
     {
-      "src": "/(.*)",
+      "src": "/api/(.*)",
+      "dest": "server.js"
+    },
+    {
+      "src": "/(.*\\.html)",
+      "dest": "/$1"
+    },
+    {
+      "src": "/(.+)",
       "dest": "server.js"
     }
   ]
 }
-```
-
-4. **Commit:** "Agregar vercel.json para configuración"
-
-5. **Vercel redeploya automáticamente** (espera 2-3 minutos)
-
-6. **Prueba de nuevo:**
-```
-https://colmena-backend-v2-prod.vercel.app/admin-asesores.html
