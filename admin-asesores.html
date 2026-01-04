@@ -475,12 +475,13 @@
             await crearAsesor();
         });
 
-        async function crearAsesor() {
-            const nombre = document.getElementById('nombre').value;
-            const email = document.getElementById('email').value;
-            const telefono = document.getElementById('telefono').value;
-            const empresa = document.getElementById('empresa').value;
-            const dias_pagados = document.getElementById('dias').value;
+       async function crearAsesor() {
+    const nombre = document.getElementById('nombre').value;
+    const email = document.getElementById('email').value;
+    const telefono = document.getElementById('telefono').value;
+    const empresa = document.getElementById('empresa').value;
+    const dias_pagados = document.getElementById('dias').value;
+    const apikey = document.getElementById('apikey').value;
 
             try {
                 const response = await fetch(`${API_URL}/asesores/crear`, {
@@ -492,6 +493,7 @@
                         telefono,
                         empresa,
                         dias_pagados
+                        apikey
                     })
                 });
 
