@@ -65,7 +65,7 @@ w: 'majority'
 // CREAR NUEVO ASESOR
 app.post('/api/asesores/crear', async (req, res) => {
   try {
-    const { nombre, email, telefono, empresa, dias_pagados } = req.body;
+    const { nombre, email, telefono, empresa, dias_pagados, apikey } = req.body;
 
     if (!nombre || !email || !telefono || !empresa || !dias_pagados) {
       return res.status(400).json({ error: 'Faltan datos requeridos' });
@@ -95,6 +95,7 @@ app.post('/api/asesores/crear', async (req, res) => {
       fecha_inicio: ahora,
       fecha_expiracion,
       dias_pagados: parseInt(dias_pagados),
+      apikey: apikey || '',
       accesos_total: 0,
       cotizaciones_generadas: 0,
       clientes_unicos: new Set(),
@@ -448,6 +449,7 @@ connectDB().then(() => {
     console.log(`📊 Panel Admin Asesores: http://localhost:${PORT}/admin-asesores.html`);
   });
 });
+
 
 
 
