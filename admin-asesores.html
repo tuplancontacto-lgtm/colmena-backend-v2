@@ -782,6 +782,53 @@ async function eliminarAsesor(slug) {
     alert('Error: ' + error);
   }
 }
+        async function verDetalles(slug) {
+  try {
+    const response = await fetch(`${API_URL}/asesores/${slug}`);
+    const data = await response.json();
+
+    if (!data || !data.asesor && !data._id) {
+      alert('❌ Error cargando detalles');
+      return;
+    }
+
+    // Buscar en la lista de asesores para obtener más datos
+    const asesor = await fetch(`${API_URL}/asesores`).then(r => r.json()).then(asesores => 
+      asesores.find(a => a.url_slug === slug)
+    );
+
+    if (!asesor) {
+      alert('❌ Asesor no encontrado');
+      return;
+    }
+
+    const detalles = `
+      📋 DETALLES DEL ASESOR
+      
+      Nombre: ${asesor.nombre}
+      Email: ${asesor.email}
+      Teléfono: ${asesor.telefono}
+      Empresa: ${asesor.empresa}
+      API Key: ${asesor.apikey || '(vacío)'}
+      
+      Estado: ${asesor.estado}
+      Días Pagados: ${asesor.dias_pagados}
+      
+      Inicio: ${new Date(asesor.fecha_inicio).toLocaleDateString('es-CL')}
+      Expiración: ${new Date(asesor.fecha_expiracion).toLocaleDateString('es-CL')}
+      
+      Accesos: ${asesor.accesos_total || 0}
+      Cotizaciones: ${asesor.cotizaciones_generadas || 0}
+      
+      URL: ${asesor.url}
+    `;
+
+    alert(detalles);
+  } catch (error) {
+    console.error('Error:', error);
+    alert('❌ Error cargando detalles');
+  }
+}
     </script>
 </body>
 </html>
