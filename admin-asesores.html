@@ -432,11 +432,6 @@
                             <option value="180">180 días</option>
                         </select>
                     </div>
-                    <div class="form-group">
-                      <label for="apikey">API Key CallMeBot (opcional)</label>
-                      <input type="text" id="apikey" placeholder="Ej: 7360481">
-                      </div>
-
                     <button type="submit">Crear Asesor</button>
                 </form>
             </div>
@@ -481,7 +476,6 @@
     const telefono = document.getElementById('telefono').value;
     const empresa = document.getElementById('empresa').value;
     const dias_pagados = document.getElementById('dias').value;
-    const apikey = document.getElementById('apikey').value;
 
             try {
                 const response = await fetch(`${API_URL}/asesores/crear`, {
@@ -492,8 +486,7 @@
                         email,
                         telefono,
                         empresa,
-                        dias_pagados,
-                        apikey
+                        dias_pagados
                     })
                 });
 
