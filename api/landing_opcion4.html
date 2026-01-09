@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Asesoria en Planes de Salud Colmena</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { font-family: Arial, sans-serif; background-color: #0a1a2a; color: white; margin: 0; padding: 0; }
+    
+    /* MODAL DE VALIDACION */
+    .modal-validacion {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(10, 26, 42, 0.95);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+    
+    .modal-validacion.oculto {
+      display: none;
+    }
+    
+    .contenedor-modal {
+      background: linear-gradient(135deg, #1a3a5a, #0d1f2d);
+      border: 2px solid #d4af37;
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 500px;
+      width: 90%;
+      text-align: center;
+      box-shadow: 0 10px 40px rgba(212, 175, 55, 0.3);
+    }
+    
+    .modal-titulo {
+      font-size: 2rem;
+      color: #d4af37;
+      margin-bottom: 10px;
+      font-weight: bold;
+    }
+    
+    .modal-subtitulo {
+      color: #b8c5d6;
+      margin-bottom: 30px;
+      font-size: 1rem;
+    }
+    
+    .modal-error {
+      color: #ff8080;
+      background: rgba(255, 128, 128, 0.1);
+      border: 1px solid #ff8080;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+      font-size: 0.9rem;
+    }
+    
+    .modal-success {
+      color: #4ade80;
+      background: rgba(74, 222, 128, 0.1);
+      border: 1px solid #4ade80;
+      padding: 15px;
+      border-radius: 8px;
+      margin-bottom: 15px;
+      display: none;
+      font-size: 0.9rem;
+    }
+    
+    .spinner {
+      display: inline-block;
+      width: 40px;
+      height: 40px;
+      border: 4px solid #f3f3f3;
+      border-top: 4px solid #d4af37;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    /* REST OF STYLES */
+    header { background: linear-gradient(90deg, #0a1a2a, #12375a); padding: 40px; text-align: center; }
+    h1 { color: #d4af37; font-size: 2.5rem; margin: 0; }
+    h2 { color: #d4af37; }
+    section { padding: 40px 20px; max-width: 900px; margin: auto; }
+    .gold { color: #d4af37; }
+    .card { background: #112233; border: 1px solid #d4af37; padding: 25px; border-radius: 15px; margin-bottom: 25px; }
+    button { background: #d4af37; color: #0a1a2a; padding: 15px 25px; border: none; border-radius: 10px; font-size: 1.1rem; cursor: pointer; font-family: Arial, sans-serif; }
+    button:hover { opacity: 0.85; }
+    form input, form select, form textarea { width: 100%; padding: 12px; margin: 8px 0; border-radius: 8px; border: none; font-family: Arial, sans-serif; }
+    .row { display:flex; gap:16px; flex-wrap: wrap; }
+    .col { flex:1; min-width: 200px; }
+    .small { font-size: 0.9rem; color: #ccc; }
+    
+    #contenido-landing {
+      display: none;
+    }
+    
+    #contenido-landing.visible {
+      display: block;
+    }
+
+    .asesor-info {
+      background: #1a2a3a;
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      border-left: 4px solid #4ade80;
+    }
+
+    .asesor-info p {
+      margin: 5px 0;
+      font-size: 0.9rem;
+    }
+
+    .asesor-nombre {
+      color: #4ade80;
+      font-weight: bold;
+      font-size: 1.1rem;
+    }
+    
+    @media (max-width: 600px) {
+      .contenedor-modal {
+        padding: 30px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- MODAL DE VALIDACION -->
+<div id="modal-validacion" class="modal-validacion">
+  <div class="contenedor-modal">
+    <div class="modal-titulo">🔐 Validando acceso...</div>
+    <div class="modal-subtitulo">Por favor espera</div>
+    
+    <div style="margin: 30px 0;">
+      <div class="spinner"></div>
+    </div>
+    
+    <div class="modal-error" id="error-modal"></div>
+    <div class="modal-success" id="success-modal"></div>
+  </div>
+</div>
+
+<!-- CONTENIDO PRINCIPAL -->
+<div id="contenido-landing">
+
+<header>
+  <h1>Asesoria en Planes de Salud Colmena</h1>
+  <p class="gold">Atencion premium para clientes exigentes</p>
+  <p class="small">Completa el formulario para obtener una cotizacion exacta en UF y CLP.</p>
+</header>
+
+<!-- INFO DEL ASESOR -->
+<section>
+  <div class="asesor-info" id="asesor-info-box">
+    <p class="asesor-nombre" id="asesor-nombre">Cargando información...</p>
+    <p id="asesor-empresa"></p>
+    <p id="asesor-contacto"></p>
+  </div>
+</section>
+
+<section id="formulario" class="card">
+  <h2 class="gold">Formulario para Calculo del Plan</h2>
+  <form id="mainForm">
+    <div class="row">
+      <div class="col"><input type="text" name="nombre" id="nombre" placeholder="Nombre completo" required /></div>
+      <div class="col"><input type="email" name="correo" id="correo" placeholder="Correo electronico" required /></div>
+    </div>
+    <div class="row">
+      <div class="col"><input type="tel" name="telefono" id="telefono" placeholder="Telefono (ej: +56912345678)" required /></div>
+      <div class="col"><input type="number" name="edad" id="edad" placeholder="Edad titular" min="18" max="99" required /></div>
+    </div>
+    <input type="text" name="rut" id="rut" placeholder="RUT (ej: 12.345.678-9)" required />
+    <select name="isapre" id="isapre" required>
+      <option value="">Isapre actual</option>
+      <option>FONASA</option>
+      <option>Colmena</option>
+      <option>Cruz Blanca</option>
+      <option>Consalud</option>
+      <option>Banmedica</option>
+      <option>Vida Tres</option>
+      <option>Nueva Masvida</option>
+      <option>Esencial</option>
+    </select>
+    <input type="number" id="renta" name="renta" placeholder="Renta imponible mensual (CLP)" required />
+    <label class="small">Edades de las cargas (separadas por coma, ej: 5, 12, 30)</label>
+    <textarea name="cargas" id="cargas" placeholder="Ej: 5, 12, 30" rows="2"></textarea>
+    <select name="region" id="region" required>
+      <option value="">Selecciona tu Region</option>
+      <option value="Arica y Parinacota">Region de Arica y Parinacota</option>
+      <option value="Tarapaca">Region de Tarapaca</option>
+      <option value="Antofagasta">Region de Antofagasta</option>
+      <option value="Atacama">Region de Atacama</option>
+      <option value="Coquimbo">Region de Coquimbo</option>
+      <option value="Valparaiso">Region de Valparaiso</option>
+      <option value="Metropolitana">Region Metropolitana</option>
+      <option value="O'Higgins">Region de O'Higgins</option>
+      <option value="Maule">Region del Maule</option>
+      <option value="Nuble">Region de Nuble</option>
+      <option value="Bio-Bio">Region del Bio-Bio</option>
+      <option value="La Araucania">Region de La Araucania</option>
+      <option value="Los Rios">Region de Los Rios</option>
+      <option value="Los Lagos">Region de Los Lagos</option>
+      <option value="Aysen">Region de Aysen</option>
+      <option value="Magallanes">Region de Magallanes</option>
+    </select>
+    <textarea name="mensaje" id="mensaje" placeholder="Mensaje adicional (opcional)" rows="2"></textarea>
+    <button type="submit" id="submitBtn">Cotizar Ahora</button>
+  </form>
+</section>
+
+<footer style="text-align:center; padding:30px; color:#666; font-size:0.85rem;">
+  Colmena Golden Cross - Asesoria en Planes de Salud
+</footer>
+
+</div>
+
+<script>
+// ============================================
+// VALIDACIÓN DE ASESOR POR URL SLUG
+// ============================================
+
+const API_URL = 'http://localhost:5000/api';
+
+function obtenerSlugDeLaURL() {
+  const path = window.location.pathname;
+  const partes = path.split('/');
+  return partes[partes.length - 1] || null;
+}
+
+async function validarAsesor() {
+  const slug = obtenerSlugDeLaURL();
+  
+  if (!slug || slug === '' || slug === 'admin-asesores.html' || slug === 'admin.html') {
+    mostrarError('❌ URL de asesor no válida', 'error-modal');
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/asesores/${slug}`);
+    const data = await response.json();
+
+    if (data.valid) {
+      // Asesor válido
+      mostrarExito(`✅ ¡Bienvenido!`, 'success-modal');
+      
+      // Guardar datos del asesor
+      sessionStorage.setItem('asesor_slug', slug);
+      sessionStorage.setItem('asesor_nombre', data.asesor.nombre);
+      sessionStorage.setItem('asesor_email', data.asesor.email);
+      sessionStorage.setItem('asesor_telefono', data.asesor.telefono);
+      sessionStorage.setItem('asesor_empresa', data.asesor.empresa);
+
+      // Registrar acceso
+      await registrarAcceso(slug);
+
+      // Mostrar landing después de 1.5 segundos
+      setTimeout(() => {
+        document.getElementById('modal-validacion').classList.add('oculto');
+        document.getElementById('contenido-landing').classList.add('visible');
+        mostrarInfoAsesor(data.asesor);
+      }, 1500);
+    } else {
+      // Asesor no válido
+      mostrarError(`❌ ${data.error || 'Acceso no disponible'}`, 'error-modal');
+    }
+  } catch (error) {
+    console.error('Error validando asesor:', error);
+    mostrarError('❌ Error de conexión. Intenta de nuevo.', 'error-modal');
+  }
+}
+
+async function registrarAcceso(slug) {
+  try {
+    await fetch(`${API_URL}/asesores/${slug}/registrar-acceso`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        cliente_nombre: 'visitante',
+        cliente_email: null
+      })
+    });
+  } catch (error) {
+    console.error('Error registrando acceso:', error);
+  }
+}
+
+function mostrarInfoAsesor(asesor) {
+  document.getElementById('asesor-nombre').textContent = `👤 ${asesor.nombre}`;
+  document.getElementById('asesor-empresa').textContent = `🏢 ${asesor.empresa}`;
+  document.getElementById('asesor-contacto').textContent = `📱 ${asesor.telefono} | 📧 ${asesor.email}`;
+}
+
+function mostrarError(mensaje, elementoId) {
+  const errorDiv = document.getElementById(elementoId);
+  errorDiv.textContent = mensaje;
+  errorDiv.style.display = 'block';
+}
+
+function mostrarExito(mensaje, elementoId) {
+  const successDiv = document.getElementById(elementoId);
+  successDiv.textContent = mensaje;
+  successDiv.style.display = 'block';
+}
+
+// Validar al cargar
+window.addEventListener('DOMContentLoaded', function() {
+  validarAsesor();
+
+  // Cuando se envía el formulario, registrar cotización
+  document.getElementById('mainForm').addEventListener('submit', async function(e) {
+    e.preventDefault();
+    
+    const slug = sessionStorage.getItem('asesor_slug');
+    const nombre = document.getElementById('nombre').value;
+    const email = document.getElementById('correo').value;
+
+    // Registrar cotización
+    try {
+      await fetch(`${API_URL}/asesores/${slug}/registrar-cotizacion`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          cliente_nombre: nombre,
+          cliente_email: email,
+          plan1: 'plan_pendiente',
+          plan2: 'plan_pendiente',
+          monto: 0
+        })
+      });
+    } catch (error) {
+      console.error('Error registrando cotización:', error);
+    }
+
+    // Aquí irían tus cálculos originales
+    alert('✅ Formulario enviado. El asesor ' + sessionStorage.getItem('asesor_nombre') + ' recibirá tus datos por WhatsApp');
+  });
+});
+</script>
+
+</body>
+</html>
