@@ -738,12 +738,10 @@
   const nuevoDiasPagados = prompt('Días Pagados:');
   const nuevoApikey = prompt('Nuevo Apikey:');
   
-  if (!nuevoNombre || !nuevoEmail || !nuevoTelefono || !nuevoEmpresa || !nuevoDiasPagados)|| !nuevoApikey) {
+  if (!nuevoNombre || !nuevoEmail || !nuevoTelefono || !nuevoEmpresa || !nuevoDiasPagados || !nuevoApikey) {
   alert('Todos los campos son requeridos');
   return;
 }
-
-  }
 
   try {
     const response = await fetch(`${API_URL}/asesores/${slug}/editar`, {
