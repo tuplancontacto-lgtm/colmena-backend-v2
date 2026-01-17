@@ -738,9 +738,11 @@
   const nuevoDiasPagados = prompt('Días Pagados:');
   const nuevoApikey = prompt('Nuevo Apikey:');
   
-  if (!nuevoNombre || !nuevoEmail || !nuevoTelefono) {
-    alert('Todos los campos son requeridos');
-    return;
+  if (!nuevoNombre || !nuevoEmail || !nuevoTelefono || !nuevoEmpresa || !nuevoDiasPagados)|| !nuevoApikey) {
+  alert('Todos los campos son requeridos');
+  return;
+}
+
   }
 
   try {
@@ -748,11 +750,14 @@
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        nombre: nuevoNombre,
-        email: nuevoEmail,
-        telefono: nuevoTelefono
-      })
-    });
+  nombre: nuevoNombre,
+  email: nuevoEmail,
+  telefono: nuevoTelefono,
+  empresa: nuevoEmpresa,
+  dias_pagados: parseInt(nuevoDiasPagados),
+  apikey: nuevoApikey
+})
+
 
     const data = await response.json();
     if (data.success) {
