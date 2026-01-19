@@ -483,7 +483,7 @@
     const dias_pagados = document.getElementById('dias').value;
     const apikey = document.getElementById('apikey').value;       
             try {
-                const response = await fetch(`${API_URL}/asesores/crear`, {
+                if (!confirm('¿Seguro que quieres eliminar este asesor?')) return;(`${API_URL}/asesores/crear`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -764,7 +764,7 @@
 }
 
 async function eliminarAsesor(slug) {
-  if (!confirm(`¿Seguro que quieres eliminar este asesor?`)) return;
+  if (!confirm('¿Seguro que quieres eliminar este asesor?')) return;
 
   try {
     const response = await fetch(`${API_URL}/asesores/${slug}/eliminar`, {
