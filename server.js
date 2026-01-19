@@ -41,7 +41,7 @@ async function connectDB() {
 w: 'majority'
 });
 
-    await client.connect();
+    await global.client.connect();
     db = global.client.db('colmena');
     asesorCollection = db.collection('asesores');
     actividadCollection = db.collection('actividad');
@@ -449,6 +449,7 @@ connectDB().then(() => {
     console.log(`📊 Panel Admin Asesores: http://localhost:${PORT}/admin-asesores.html`);
   });
 });
+
 
 
 
