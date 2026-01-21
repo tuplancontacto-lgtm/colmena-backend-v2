@@ -36,13 +36,13 @@ app.get('/admin-asesores.html', (req, res) => {
 // Conectar a MongoDB
 async function connectDB() {
   try {
-   global.client = new MongoClient(MONGODB_URI, {
-  retryWrites: true,
-w: 'majority'
-});
+    const client = new MongoClient(MONGODB_URI, {
+      retryWrites: true,
+      w: 'majority'
+    });
 
     await client.connect();
-    db = global.client.db('colmena');
+    db = client.db('colmena');
     asesorCollection = db.collection('asesores');
     actividadCollection = db.collection('actividad');
     
