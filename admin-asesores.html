@@ -799,7 +799,7 @@ async function eliminarAsesor(slug) {
       return;
     }
 
-    // Buscar en la lista de asesores para obtener más datos
+    // Buscar en la lista de asesores para obtener más y mejores datos
     const asesor = await fetch(`${API_URL}/asesores`).then(r => r.json()).then(asesores => 
       asesores.find(a => a.url_slug === slug)
     );
