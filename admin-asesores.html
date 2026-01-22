@@ -553,36 +553,48 @@
                 const fechaExpiracion = new Date(asesor.fecha_expiracion).toLocaleDateString('es-CL');
                 const diasRestantes = Math.ceil((new Date(asesor.fecha_expiracion) - new Date()) / (1000 * 60 * 60 * 24));
 
-                html += `
-                    <tr>
-                        <td>
-                            <strong>${asesor.nombre}</strong><br>
-                            <small style="color: #666;">${asesor.email}</small>
-                        </td>
-                        <td>
-                            <span class="url-slug">/${asesor.url_slug}</span><br>
-                            <small>${asesor.url}</small>
-                        </td>
-                        <td>
-                            ${fechaExpiracion}<br>
-                            <small style="color: ${diasRestantes < 5 ? '#dc3545' : '#666'}">${diasRestantes > 0 ? diasRestantes + ' días' : 'Expirado'}</small>
-                        </td>
-                        <td><span class="status ${estadoClass}">${estadoTexto}</span></td>
-                        <td>${asesor.accesos_total || 0}</td>
-                        <td>${asesor.cotizaciones_generadas || 0}</td>
-                        <td>
-                            <div class="action-buttons">
-                                <button class="btn-small btn-copiar" onclick="copiarURL('${asesor.url}')">Copiar URL</button>
-                                <button class="btn-small btn-renovar" onclick="renovarAsesor('${asesor.url_slug}')">Renovar</button>
-                                <button class="btn-small btn-revocar" onclick="revocarAsesor('${asesor.url_slug}')">Revocar</button>
-                                <button class="btn-small btn-copiar" onclick="verActividad('${asesor.url_slug}', '${asesor.nombre}')">Actividad</button>
-                                <button class="btn-small btn-editar" onclick="editarAsesor('${asesor.url_slug}')">Editar</button>
-                                <button class="btn-small btn-eliminar" onclick="eliminarAsesor('${asesor.url_slug}')">Eliminar</button>
-                                <button class="btn-small btn-info" onclick="verDetalles('${asesor.url_slug}')">Ver Detalles</button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
+              html += `
+              <tr>
+               <td>
+                 <strong>${asesor.nombre}</strong><br>
+                 <small style="color: #666;">${asesor.email}</small>
+              </td>
+
+              <td>
+        <span class="url-slug">?asesor=${asesor.url_slug}</span><br>
+        <small>
+            https://tuplanisapre.vercel.app/?asesor=${asesor.url_slug}
+        </small>
+    </td>
+
+    <td>
+        ${fechaExpiracion}<br>
+        <small style="color: ${diasRestantes < 5 ? '#dc3545' : '#666'}">
+            ${diasRestantes > 0 ? diasRestantes + ' días' : 'Expirado'}
+        </small>
+    </td>
+
+    <td><span class="status ${estadoClass}">${estadoTexto}</span></td>
+    <td>${asesor.accesos_total || 0}</td>
+    <td>${asesor.cotizaciones_generadas || 0}</td>
+
+    <td>
+        <div class="action-buttons">
+            <button class="btn-small btn-copiar"
+                onclick="copiarURL('https://tuplanisapre.vercel.app/?asesor=${asesor.url_slug}')">
+                Copiar URL
+            </button>
+
+            <button class="btn-small btn-renovar" onclick="renovarAsesor('${asesor.url_slug}')">Renovar</button>
+            <button class="btn-small btn-revocar" onclick="revocarAsesor('${asesor.url_slug}')">Revocar</button>
+            <button class="btn-small btn-copiar" onclick="verActividad('${asesor.url_slug}', '${asesor.nombre}')">Actividad</button>
+            <button class="btn-small btn-editar" onclick="editarAsesor('${asesor.url_slug}')">Editar</button>
+            <button class="btn-small btn-eliminar" onclick="eliminarAsesor('${asesor.url_slug}')">Eliminar</button>
+            <button class="btn-small btn-info" onclick="verDetalles('${asesor.url_slug}')">Ver Detalles</button>
+        </div>
+    </td>
+</tr>
+`;
             });
 
             html += `
