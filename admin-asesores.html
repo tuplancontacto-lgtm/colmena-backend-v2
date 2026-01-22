@@ -825,26 +825,28 @@ async function eliminarAsesor(slug) {
 
     const detalles = `
       📋 DETALLES DEL ASESOR
-      
-      Nombre: ${asesor.nombre}
-      Email: ${asesor.email}
-      Teléfono: ${asesor.telefono}
-      Empresa: ${asesor.empresa}
-      API Key: ${asesor.apikey || '(vacío)'}
-      
-      Estado: ${asesor.estado}
-      Días Pagados: ${asesor.dias_pagados}
-      
-      Inicio: ${new Date(asesor.fecha_inicio).toLocaleDateString('es-CL')}
-      Expiración: ${new Date(asesor.fecha_expiracion).toLocaleDateString('es-CL')}
-      
-      Accesos: ${asesor.accesos_total || 0}
-      Cotizaciones: ${asesor.cotizaciones_generadas || 0}
-      
-      URL: ${asesor.url}
-    `;
+     const urlFinal = `https://tuplanisapre.vercel.app/?asesor=${asesor.url_slug}`;
 
-    alert(detalles);
+const detalles = `
+Nombre: ${asesor.nombre}
+Email: ${asesor.email}
+Teléfono: ${asesor.telefono}
+Empresa: ${asesor.empresa}
+API Key: ${asesor.apikey || '(vacío)'}
+
+Estado: ${asesor.estado}
+Días Pagados: ${asesor.dias_pagados}
+
+Inicio: ${new Date(asesor.fecha_inicio).toLocaleDateString('es-CL')}
+Expiración: ${new Date(asesor.fecha_expiracion).toLocaleDateString('es-CL')}
+
+Accesos: ${asesor.accesos_total || 0}
+Cotizaciones: ${asesor.cotizaciones_generadas || 0}
+
+URL: ${urlFinal}
+`;
+
+alert(detalles);
   } catch (error) {
     console.error('Error:', error);
     alert('❌ Error cargando detalles');
