@@ -448,17 +448,36 @@ app.delete('/api/asesores/:slug/eliminar', async (req, res) => {
     res.status(500).json({ error: 'Error eliminando asesor' });
   }
 });
+
 // ============================================
-// RUTA DINÁMICA PARA ASESORES (IMPORTANTE)
+// RUTA DINÁMICA PARA ASESORES (VALIDADA)
 // ============================================
 
-// Servir index.html para rutas dinámicas de asesores
-app.get('/:slug', (req, res) => {
-  // No servir si es una extensión de archivo o rutas especiales
-  if (req.params.slug && !req.params.slug.includes('.') && req.params.slug !== 'api') {
+app.get('/:slug', async (req, res) => {
+  const { slug } = req.params;
+
+  // Ignorar archivos y rutas especiales
+  if (!slug || slug.includes('.') || slug === 'api') {
+    return;
+  }
+
+  try {
+    const resultado = await validarAsesorActivo(slug);
+
+    if (!resultado.ok) {
+      return res.status(403).send(`
+        <h2>⛔ Acceso ${resultado.motivo}</h2>
+        <p>Este enlace ya no está disponible.</p>
+      `);
+    }
+
     res.sendFile(path.join(__dirname, 'index.html'));
+  } catch (error) {
+    console.error('Error validando asesor:', error);
+    res.status(500).send('Error interno');
   }
 });
+
 
 // ============================================
 // INICIAR SERVIDOR
@@ -473,6 +492,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
