@@ -730,35 +730,35 @@
             stats[2].textContent = '0'; // Accesos hoy (se actualizaría con polling)
             stats[3].textContent = '0'; // Cotizaciones hoy
         }
-        async function editarAsesor(slug) {
+     async function editarAsesor(slug) {
   const nuevoNombre = prompt('Nuevo nombre:');
   const nuevoEmail = prompt('Nuevo email:');
   const nuevoTelefono = prompt('Nuevo teléfono:');
   const nuevoEmpresa = prompt('Nuevo empresa:');
   const nuevoDiasPagados = prompt('Días Pagados:');
   const nuevoApikey = prompt('Nuevo Apikey:');
-  
-  if (!nuevoNombre || !nuevoEmail || !nuevoTelefono || !nuevoEmpresa || !nuevoDiasPagados || !nuevoApikey) {
-  alert('Todos los campos son requeridos');
-  return;
-}
+
+  if (!nuevoNombre || !nuevoEmail || !nuevoTelefono || !nuevoEmpresa || !nuevoDiasPagados) {
+    alert('Todos los campos son requeridos');
+    return;
+  }
 
   try {
     const response = await fetch(`${API_URL}/asesores/${slug}/editar`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-  nombre: nuevoNombre,
-  email: nuevoEmail,
-  telefono: nuevoTelefono,
-  empresa: nuevoEmpresa,
-  dias_pagados: parseInt(nuevoDiasPagados),
-  apikey: nuevoApikey
-  })
-});
-
+        nombre: nuevoNombre,
+        email: nuevoEmail,
+        telefono: nuevoTelefono,
+        empresa: nuevoEmpresa,
+        dias_pagados: parseInt(nuevoDiasPagados),
+        apikey: nuevoApikey
+      })
+    }); // ✅ CIERRE CORRECTO
 
     const data = await response.json();
+
     if (data.success) {
       alert('✅ Asesor actualizado');
       cargarAsesores();
@@ -769,6 +769,7 @@
     alert('Error: ' + error);
   }
 }
+
 
 async function eliminarAsesor(slug) {
   if (!confirm(`¿Seguro que quieres eliminar este asesor?`)) return;
