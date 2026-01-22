@@ -245,6 +245,16 @@ app.post('/api/asesores/:slug/registrar-cotizacion', async (req, res) => {
     const { slug } = req.params;
     const { cliente_nombre, cliente_email, plan1, plan2, monto } = req.body;
 
+        const validacion = await validarAsesorActivo(slug);
+
+    if (!validacion.ok) {
+      return res.status(403).json({
+        success: false,
+        error: `ASESOR_${validacion.motivo}`
+      });
+    }
+
+
     const registro_actividad = {
       url_slug: slug,
       tipo: 'cotizacion',
@@ -492,6 +502,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
