@@ -13,6 +13,26 @@ let db;
 let asesorCollection;
 let actividadCollection;
 
+async function validarAsesorActivo(slug) {
+  const asesor = await asesorCollection.findOne({ url_slug: slug });
+
+  if (!asesor) {
+    return { ok: false, motivo: 'ELIMINADO' };
+  }
+
+  if (asesor.estado !== 'activo') {
+    return { ok: false, motivo: asesor.estado.toUpperCase() };
+  }
+
+  const ahora = new Date();
+  if (ahora > asesor.fecha_expiracion) {
+    return { ok: false, motivo: 'EXPIRADO' };
+  }
+
+  return { ok: true, asesor };
+}
+
+
 // Middleware
 app.use(cors({
   origin: '*',
@@ -453,6 +473,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
