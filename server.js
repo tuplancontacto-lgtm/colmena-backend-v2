@@ -21,16 +21,21 @@ async function validarAsesorActivo(slug) {
   }
 
   if (asesor.estado !== 'activo') {
-    return { ok: false, motivo: asesor.estado.toUpperCase() };
+    return { ok: false, motivo: 'REVOCADO' };
+  }
+
+  if (asesor.fecha_cancelacion) {
+    return { ok: false, motivo: 'CANCELADO' };
   }
 
   const ahora = new Date();
-  if (ahora > asesor.fecha_expiracion) {
+  if (ahora > new Date(asesor.fecha_expiracion)) {
     return { ok: false, motivo: 'EXPIRADO' };
   }
 
   return { ok: true, asesor };
 }
+
 
 
 // Middleware
@@ -502,6 +507,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
