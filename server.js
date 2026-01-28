@@ -97,6 +97,16 @@ app.use(express.json());
 app.use(express.static('.'));
 app.use(express.static(path.join(__dirname)));
 
+// ✅ Diagnóstico rápido: ver si están cargadas las variables de WhatsApp
+app.get("/api/whatsapp-status", (req, res) => {
+  res.json({
+    ok: true,
+    hasToken: !!process.env.WHATSAPP_TOKEN,
+    hasPhoneNumberId: !!process.env.WHATSAPP_PHONE_NUMBER_ID,
+    node: process.version
+  });
+});
+
 
 // Servir admin.html
 app.get('/admin.html', (req, res) => {
@@ -556,6 +566,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
