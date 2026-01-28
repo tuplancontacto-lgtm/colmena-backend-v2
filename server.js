@@ -32,17 +32,19 @@ function normalizarTelefono(to) {
 }
 
 async function enviarWhatsAppTexto({ to, body }) {
-  if (!WHATSAPP_TOKEN || !WHATSAPP_PHONE_NUMBER_ID) {
-  throw new Error("Faltan WHATSAPP_TOKEN o WHATSAPP_PHONE_NUMBER_ID");
-}
+  const token = process.env.WHATSAPP_TOKEN;
+  const phoneId = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
+  if (!token || !phoneId) {
+    throw new Error("Faltan WHATSAPP_TOKEN o WHATSAPP_PHONE_NUMBER_ID");
+  }
 
   const toDigits = normalizarTelefono(to);
   if (!toDigits) {
     throw new Error("Teléfono destino inválido");
   }
 
-  const url = `https://graph.facebook.com/v22.0/${WHATSAPP_PHONE_NUMBER_ID}/messages`;
+  const url = `https://graph.facebook.com/v22.0/${phoneId}/messages`;
 
   const payload = {
     messaging_product: "whatsapp",
@@ -54,7 +56,7 @@ async function enviarWhatsAppTexto({ to, body }) {
   const resp = await fetch(url, {
     method: "POST",
     headers: {
-      Authorization: `Bearer ${WHATSAPP_TOKEN}`,
+      Authorization: `Bearer ${token}`,
       "Content-Type": "application/json"
     },
     body: JSON.stringify(payload)
@@ -593,6 +595,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
