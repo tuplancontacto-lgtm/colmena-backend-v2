@@ -33,8 +33,9 @@ function normalizarTelefono(to) {
 
 async function enviarWhatsAppTexto({ to, body }) {
   if (!WHATSAPP_TOKEN || !WHATSAPP_PHONE_NUMBER_ID) {
-    throw new Error("Faltan WHATSAPP_TOKEN o WHATSAPP_PHONE_NUMBER_ID en .env");
-  }
+  throw new Error("Faltan WHATSAPP_TOKEN o WHATSAPP_PHONE_NUMBER_ID");
+}
+
 
   const toDigits = normalizarTelefono(to);
   if (!toDigits) {
@@ -592,6 +593,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
