@@ -13,6 +13,55 @@ let db;
 let asesorCollection;
 let actividadCollection;
 
+// ================================
+// WhatsApp Cloud API (Meta)
+// ================================
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
+
+function normalizarTelefono(to) {
+  // deja solo dígitos (ej: "+56 9 9070 1837" -> "56990701837")
+  return String(to || "").replace(/\D/g, "");
+}
+
+async function enviarWhatsAppTexto({ to, body }) {
+  if (!WHATSAPP_TOKEN || !WHATSAPP_PHONE_NUMBER_ID) {
+    throw new Error("Faltan WHATSAPP_TOKEN o WHATSAPP_PHONE_NUMBER_ID en .env");
+  }
+
+  const toDigits = normalizarTelefono(to);
+  if (!toDigits) {
+    throw new Error("Teléfono destino inválido");
+  }
+
+  const url = `https://graph.facebook.com/v22.0/${WHATSAPP_PHONE_NUMBER_ID}/messages`;
+
+  const payload = {
+    messaging_product: "whatsapp",
+    to: toDigits,
+    type: "text",
+    text: { body }
+  };
+
+  const resp = await fetch(url, {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${WHATSAPP_TOKEN}`,
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await resp.json();
+
+  if (!resp.ok) {
+    console.error("WhatsApp API error:", data);
+    throw new Error(data?.error?.message || "Error enviando WhatsApp");
+  }
+
+  return data;
+}
+
 async function validarAsesorActivo(slug) {
   const asesor = await asesorCollection.findOne({ url_slug: slug });
 
@@ -507,6 +556,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
