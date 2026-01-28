@@ -19,6 +19,13 @@ let actividadCollection;
 const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
 const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
 
+console.log("🧪 WHATSAPP ENV CHECK", {
+  WHATSAPP_TOKEN: !!process.env.WHATSAPP_TOKEN,
+  WHATSAPP_PHONE_NUMBER_ID: !!process.env.WHATSAPP_PHONE_NUMBER_ID,
+  RAW_PHONE_ID: process.env.WHATSAPP_PHONE_NUMBER_ID
+});
+
+
 function normalizarTelefono(to) {
   // deja solo dígitos (ej: "+56 9 9070 1837" -> "56990701837")
   return String(to || "").replace(/\D/g, "");
@@ -566,6 +573,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
