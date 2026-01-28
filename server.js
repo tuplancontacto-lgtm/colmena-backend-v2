@@ -113,6 +113,25 @@ app.get("/api/whatsapp-status", (req, res) => {
     node: process.version
   });
 });
+// ✅ PRUEBA ENVÍO WHATSAPP (ruta temporal)
+app.get("/api/test-whatsapp", async (req, res) => {
+  try {
+    const to = req.query.to; // ej: 56990701837
+    if (!to) {
+      return res.status(400).json({ error: "Falta parámetro ?to=" });
+    }
+
+    const result = await enviarWhatsAppTexto({
+      to,
+      body: "✅ Prueba exitosa: WhatsApp Cloud API funcionando desde tu backend."
+    });
+
+    res.json({ success: true, result });
+  } catch (err) {
+    console.error("❌ Error enviando WhatsApp:", err.message);
+    res.status(500).json({ success: false, error: err.message });
+  }
+});
 
 
 // Servir admin.html
@@ -573,6 +592,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
