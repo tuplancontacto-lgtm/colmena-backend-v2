@@ -13,21 +13,51 @@ let db;
 let asesorCollection;
 let actividadCollection;
 
+async function validarAsesorActivo(slug) {
+  const asesor = await asesorCollection.findOne({ url_slug: slug });
+
+  if (!asesor) {
+    return { ok: false, motivo: 'ELIMINADO' };
+  }
+
+  if (asesor.estado !== 'activo') {
+    return { ok: false, motivo: 'REVOCADO' };
+  }
+
+  if (asesor.fecha_cancelacion) {
+    return { ok: false, motivo: 'CANCELADO' };
+  }
+
+  const ahora = new Date();
+  if (ahora > new Date(asesor.fecha_expiracion)) {
+    return { ok: false, motivo: 'EXPIRADO' };
+  }
+
+  return { ok: true, asesor };
+}
+
+
+
+// Middleware
+app.use(cors({
+  origin: '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: false
+}));
+app.use(express.json());
+app.use(express.static('.'));
+app.use(express.static(path.join(__dirname)));
+
 // ================================
 // WhatsApp Cloud API (Meta)
 // ================================
-const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
-const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
-
 console.log("🧪 WHATSAPP ENV CHECK", {
   WHATSAPP_TOKEN: !!process.env.WHATSAPP_TOKEN,
   WHATSAPP_PHONE_NUMBER_ID: !!process.env.WHATSAPP_PHONE_NUMBER_ID,
   RAW_PHONE_ID: process.env.WHATSAPP_PHONE_NUMBER_ID
 });
 
-
 function normalizarTelefono(to) {
-  // deja solo dígitos (ej: "+56 9 9070 1837" -> "56990701837")
   return String(to || "").replace(/\D/g, "");
 }
 
@@ -72,40 +102,6 @@ async function enviarWhatsAppTexto({ to, body }) {
   return data;
 }
 
-async function validarAsesorActivo(slug) {
-  const asesor = await asesorCollection.findOne({ url_slug: slug });
-
-  if (!asesor) {
-    return { ok: false, motivo: 'ELIMINADO' };
-  }
-
-  if (asesor.estado !== 'activo') {
-    return { ok: false, motivo: 'REVOCADO' };
-  }
-
-  if (asesor.fecha_cancelacion) {
-    return { ok: false, motivo: 'CANCELADO' };
-  }
-
-  const ahora = new Date();
-  if (ahora > new Date(asesor.fecha_expiracion)) {
-    return { ok: false, motivo: 'EXPIRADO' };
-  }
-
-  return { ok: true, asesor };
-}
-
-
-
-// Middleware
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: false
-}));
-app.use(express.json());
-app.use(express.static('.'));
-app.use(express.static(path.join(__dirname)));
 
 // ✅ Diagnóstico rápido: ver si están cargadas las variables de WhatsApp
 app.get("/api/whatsapp-status", (req, res) => {
@@ -595,6 +591,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
