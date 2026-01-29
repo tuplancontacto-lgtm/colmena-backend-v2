@@ -343,6 +343,32 @@ app.post('/api/asesores/:slug/registrar-cotizacion', async (req, res) => {
       });
     }
 
+    // ✅ Enviar WhatsApp al asesor dueño de ese slug
+try {
+  const asesor = validacion.asesor; // viene de validarAsesorActivo()
+
+  const telAsesor = normalizarTelefono(asesor.telefono); // lo que guardas en el panel admin
+  if (telAsesor) {
+    const msg = [
+      "📌 Nueva cotización en tu landing",
+      `Asesor: ${asesor.nombre} (${asesor.url_slug})`,
+      `Cliente: ${cliente_nombre || "Sin nombre"}`,
+      `Email: ${cliente_email || "Sin email"}`,
+      `Plan 1: ${plan1 || "-"}`,
+      `Plan 2: ${plan2 || "-"}`,
+      `Monto: ${monto || "-"}`,
+      `Fecha: ${new Date().toLocaleString("es-CL")}`
+    ].join("\n");
+
+    await enviarWhatsAppTexto({ to: telAsesor, body: msg });
+  } else {
+    console.warn("⚠️ Asesor sin teléfono en DB:", asesor.url_slug);
+  }
+} catch (e) {
+  console.error("❌ No se pudo enviar WhatsApp al asesor:", e.message);
+  // OJO: NO cortamos la cotización. Solo registramos el error.
+}
+
 
     const registro_actividad = {
       url_slug: slug,
@@ -591,6 +617,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
