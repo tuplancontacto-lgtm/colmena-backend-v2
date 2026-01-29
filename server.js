@@ -171,6 +171,48 @@ w: 'majority'
 // ============================================
 // RUTAS PARA GESTIÓN DE ASESORES
 // ============================================
+// ============================================
+// ENVIAR LEAD POR WHATSAPP (Cloud API)
+// ============================================
+app.post('/api/enviar-lead', async (req, res) => {
+  try {
+    const { asesor, mensaje } = req.body;
+
+    if (!asesor || !mensaje) {
+      return res.status(400).json({ error: 'Faltan datos' });
+    }
+
+    const validacion = await validarAsesorActivo(asesor);
+    if (!validacion.ok) {
+      return res.status(403).json({
+        success: false,
+        error: `ASESOR_${validacion.motivo}`
+      });
+    }
+
+    const telAsesor = validacion.asesor.telefono;
+    if (!telAsesor) {
+      return res.status(400).json({
+        success: false,
+        error: 'ASESOR_SIN_TELEFONO'
+      });
+    }
+
+    const result = await enviarWhatsAppTexto({
+      to: telAsesor,
+      body: mensaje
+    });
+
+    res.json({ success: true, result });
+
+  } catch (e) {
+    console.error('❌ Error /api/enviar-lead:', e.message);
+    res.status(500).json({
+      success: false,
+      error: e.message
+    });
+  }
+});
 
 // CREAR NUEVO ASESOR
 app.post('/api/asesores/crear', async (req, res) => {
@@ -617,6 +659,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
