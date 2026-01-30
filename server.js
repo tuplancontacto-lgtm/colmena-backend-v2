@@ -86,8 +86,15 @@ async function enviarWhatsAppTexto({ to, body }) {
     type: "text",
     text: { body }
   };
-
-  const resp = await fetch(url, {
+  
+// 🔎 SOLO PARA DIAGNOSTICAR
+  console.log("➡️ Enviando a WhatsApp:", {
+    url,
+    toDigits,
+    body: body.slice(0, 60) + "..."
+  });
+  
+    const resp = await fetch(url, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,
@@ -96,7 +103,18 @@ async function enviarWhatsAppTexto({ to, body }) {
     body: JSON.stringify(payload)
   });
 
-  const data = await resp.json();
+  let data;
+  try {
+    data = await resp.json();
+  } catch (e) {
+    data = {};
+  }
+
+  // 🔎 LOG DE RESPUESTA
+  console.log("⬅️ Respuesta WhatsApp:", {
+    status: resp.status,
+    data
+  });
 
   if (!resp.ok) {
     console.error("WhatsApp API error:", data);
@@ -105,6 +123,7 @@ async function enviarWhatsAppTexto({ to, body }) {
 
   return data;
 }
+
 
 
 // ✅ Diagnóstico rápido: ver si están cargadas las variables de WhatsApp
@@ -663,6 +682,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
