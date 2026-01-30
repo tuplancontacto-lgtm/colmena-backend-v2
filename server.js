@@ -8,6 +8,17 @@ const app = express();
 const PORT = process.env.PORT || 5000;
 const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI;
 
+// ================================
+// CONFIG WHATSAPP CLOUD API
+// ================================
+const WHATSAPP_TOKEN = process.env.WHATSAPP_TOKEN;
+const WHATSAPP_PHONE_NUMBER_ID = process.env.WHATSAPP_PHONE_NUMBER_ID;
+
+console.log('🧪 WHATSAPP ENV CHECK', {
+  WHATSAPP_TOKEN: !!WHATSAPP_TOKEN,
+  WHATSAPP_PHONE_NUMBER_ID: !!WHATSAPP_PHONE_NUMBER_ID
+});
+
 
 let db;
 let asesorCollection;
@@ -48,14 +59,7 @@ app.use(express.json());
 app.use(express.static('.'));
 app.use(express.static(path.join(__dirname)));
 
-// ================================
-// WhatsApp Cloud API (Meta)
-// ================================
-console.log("🧪 WHATSAPP ENV CHECK", {
-  WHATSAPP_TOKEN: !!process.env.WHATSAPP_TOKEN,
-  WHATSAPP_PHONE_NUMBER_ID: !!process.env.WHATSAPP_PHONE_NUMBER_ID,
-  RAW_PHONE_ID: process.env.WHATSAPP_PHONE_NUMBER_ID
-});
+
 
 function normalizarTelefono(to) {
   return String(to || "").replace(/\D/g, "");
@@ -659,6 +663,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
