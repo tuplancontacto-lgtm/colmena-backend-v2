@@ -410,6 +410,28 @@ app.post('/api/asesores/:slug/registrar-cotizacion', async (req, res) => {
       plan1,
       plan2,
       monto } = req.body;
+    
+const rentaNum    = Number(renta || 0);
+const sieteUFNum  = Number(sieteUF || 0);
+const sieteCLPNum = Number(sieteCLP || 0);
+const montoNum    = Number(monto || 0);
+
+const lineaTelefono = `Teléfono: ${telefono || "-"}`;
+const lineaRut      = `RUT: ${rut || "-"}`;
+const lineaEdad     = `Edad: ${edad ? `${edad} años` : "-"}`;
+const lineaRegion   = `Región: ${region || "-"}`;
+const lineaRenta    = `Renta: ${rentaNum ? `$${rentaNum.toLocaleString("es-CL")}` : "-"}`;
+const lineaCargas   = `Cargas: ${cargas || "0"}`;
+
+const lineaSiete = `7%: ${
+  sieteCLPNum ? `$${sieteCLPNum.toLocaleString("es-CL")}` : "-"
+} (${sieteUFNum ? `${sieteUFNum.toFixed(2)} UF` : "-"})`;
+
+const lineaPlan1 = `Plan 1: ${plan1 || "-"}`;
+const lineaPlan2 = `Plan 2: ${plan2 || "-"}`;
+const lineaMonto = `Monto: ${
+  montoNum ? `$${montoNum.toLocaleString("es-CL")}` : "-"
+}`;
 
         const validacion = await validarAsesorActivo(slug);
 
@@ -727,6 +749,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
