@@ -415,15 +415,18 @@ try {
   const telAsesor = normalizarTelefono(asesor.telefono); // lo que guardas en el panel admin
   if (telAsesor) {
     const msg = [
-      "📌 Nueva cotización en tu landing",
-      `Asesor: ${asesor.nombre} (${asesor.url_slug})`,
-      `Cliente: ${cliente_nombre || "Sin nombre"}`,
-      `Email: ${cliente_email || "Sin email"}`,
-      `Plan 1: ${plan1 || "-"}`,
-      `Plan 2: ${plan2 || "-"}`,
-      `Monto: ${monto || "-"}`,
-      `Fecha: ${new Date().toLocaleString("es-CL")}`
-    ].join("\n");
+  "📌 Nueva cotización en tu landing",
+  `Asesor: ${asesor.nombre} (${asesor.url_slug})`,
+  `Cliente: ${cliente_nombre || "Sin nombre"}`,
+  `Teléfono: ${cliente_telefono || "Sin teléfono"}`,
+  `RUT: ${rut || "Sin RUT"}`,
+  `Edad: ${edad ? `${edad} años` : "Sin edad"}`,
+  `Email: ${cliente_email || "Sin email"}`,
+  `Plan 1: ${plan1 || "-"}`,
+  `Plan 2: ${plan2 || "-"}`,
+  `Monto: ${monto || "-"}`,
+  `Fecha: ${new Date().toLocaleString("es-CL")}`
+].join("\n");
 
     await enviarWhatsAppTexto({ to: telAsesor, body: msg });
   } else {
@@ -697,6 +700,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
