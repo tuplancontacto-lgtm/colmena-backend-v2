@@ -408,9 +408,13 @@ app.post('/api/asesores/:slug/registrar-cotizacion', async (req, res) => {
       sieteUF,
       sieteCLP,
       plan1,
-      plan2,
-      monto } = req.body;
+      plan2
+      } = req.body;
     
+    const rentaNum    = Number(renta || 0);
+    const sieteUFNum  = Number(sieteUF || 0);
+    const sieteCLPNum = Number(sieteCLP || 0);
+
         const validacion = await validarAsesorActivo(slug);
 
     if (!validacion.ok) {
@@ -438,16 +442,18 @@ const sieteCLPNum = Number(sieteCLP || 0);
           `Edad: ${edad ? `${edad} años` : "Sin edad"}`,
           `Email: ${cliente_email || "Sin email"}`,
           `Región: ${region || "-"}`,
-          `Renta: ${renta ? `$${Number(renta).toLocaleString("es-CL")}` : "-"}`,
+          `Renta:  ${
+        rentaNum ? `$${rentaNum.toLocaleString("es-CL")}` : "-"
+      }`,
           `Cargas: ${
             Array.isArray(cargas) ? cargas.join(", ") : (cargas || "-")
           }`,
-          `7% en UF: ${sieteUF || "-"}`,
-          `7% en CLP: ${
-    sieteCLPNum
-      ? `$${sieteCLPNum.toLocaleString("es-CL")} (${sieteUFNum.toFixed(2)} UF)`
-      : "-"
-  }`,
+          `7% en UF: ${
+        sieteUFNum ? sieteUFNum.toFixed(2) : "-"
+      }`,
+      `7% en CLP: ${
+        sieteCLPNum ? `$${sieteCLPNum.toLocaleString("es-CL")}` : "-"
+      }`,
           `Plan 1: ${plan1 || "-"}`,
           `Plan 2: ${plan2 || "-"}`,
           `Fecha: ${new Date().toLocaleString("es-CL")}`
@@ -733,6 +739,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
