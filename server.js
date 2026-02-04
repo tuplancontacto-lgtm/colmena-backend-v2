@@ -397,7 +397,19 @@ app.post('/api/asesores/:slug/registrar-acceso', async (req, res) => {
 app.post('/api/asesores/:slug/registrar-cotizacion', async (req, res) => {
   try {
     const { slug } = req.params;
-    const { cliente_nombre, cliente_email, plan1, plan2, monto } = req.body;
+    const { cliente_nombre,
+      cliente_email,
+      cliente_telefono,
+      rut,
+      edad,
+      region,
+      renta,
+      cargas,
+      sieteUF,
+      sieteCLP,
+      plan1,
+      plan2,
+      monto } = req.body;
 
         const validacion = await validarAsesorActivo(slug);
 
@@ -416,17 +428,24 @@ try {
   if (telAsesor) {
     const msg = [
   "📌 Nueva cotización en tu landing",
-  `Asesor: ${asesor.nombre} (${asesor.url_slug})`,
-  `Cliente: ${cliente_nombre || "Sin nombre"}`,
-  `Teléfono: ${cliente_telefono || "Sin teléfono"}`,
-  `RUT: ${rut || "Sin RUT"}`,
-  `Edad: ${edad ? `${edad} años` : "Sin edad"}`,
-  `Email: ${cliente_email || "Sin email"}`,
-  `Plan 1: ${plan1 || "-"}`,
-  `Plan 2: ${plan2 || "-"}`,
-  `Monto: ${monto || "-"}`,
-  `Fecha: ${new Date().toLocaleString("es-CL")}`
-].join("\n");
+          `Asesor: ${asesor.nombre} (${asesor.url_slug})`,
+          `Cliente: ${cliente_nombre || "Sin nombre"}`,
+          `Teléfono: ${cliente_telefono || "Sin teléfono"}`,
+          `RUT: ${rut || "Sin RUT"}`,
+          `Edad: ${edad ? `${edad} años` : "Sin edad"}`,
+          `Email: ${cliente_email || "Sin email"}`,
+          `Región: ${region || "-"}`,
+          `Renta: ${renta || "-"}`,
+          `Cargas: ${
+            Array.isArray(cargas) ? cargas.join(", ") : (cargas || "-")
+          }`,
+          `7% en UF: ${sieteUF || "-"}`,
+          `7% en CLP: ${sieteCLP || "-"}`,
+          `Plan 1: ${plan1 || "-"}`,
+          `Plan 2: ${plan2 || "-"}`,
+          `Monto: ${monto || "-"}`,
+          `Fecha: ${new Date().toLocaleString("es-CL")}`
+        ].join("\n");;
 
     await enviarWhatsAppTexto({ to: telAsesor, body: msg });
   } else {
@@ -440,10 +459,18 @@ try {
 
     const registro_actividad = {
       url_slug: slug,
-      tipo: 'cotizacion',
+      tipo: "cotizacion",
       fecha: new Date(),
       cliente_nombre,
       cliente_email,
+      cliente_telefono,
+      rut,
+      edad,
+      region,
+      renta,
+      cargas,
+      sieteUF,
+      sieteCLP,
       plan1,
       plan2,
       monto,
@@ -700,6 +727,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
