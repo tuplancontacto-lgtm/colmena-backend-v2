@@ -432,6 +432,13 @@ try {
   if (telAsesor) {
     const sieteUFNum  = Number(sieteUF || 0);
 const sieteCLPNum = Number(sieteCLP || 0);
+  const rentaNum = Number(renta || 0);
+  
+    const ahoraChile = new Date().toLocaleString("es-CL", {
+  timeZone: "America/Santiago",
+  // si quieres formato 24 horas, descomenta la siguiente línea:
+  // hour12: false
+});
 
     const msg = [
   "📌 Nueva cotización en tu landing",
@@ -456,8 +463,8 @@ const sieteCLPNum = Number(sieteCLP || 0);
       }`,
           `Plan 1: ${plan1 || "-"}`,
           `Plan 2: ${plan2 || "-"}`,
-          `Fecha: ${new Date().toLocaleString("es-CL")}`
-        ].join("\n");;
+          `Fecha: ${ahoraChile}`
+].join("\n");
 
     await enviarWhatsAppTexto({ to: telAsesor, body: msg });
   } else {
@@ -739,6 +746,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
