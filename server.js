@@ -273,7 +273,7 @@ app.post('/api/asesores/crear', async (req, res) => {
       apikey: apikey || '',
       accesos_total: 0,
       cotizaciones_generadas: 0,
-      clientes_unicos: new Set(),
+      clientes_unicos: [] ,
       ultimo_acceso: null,
       fecha_cancelacion: null,
       razon_cancelacion: null,
@@ -289,7 +289,7 @@ app.post('/api/asesores/crear', async (req, res) => {
         ...nuevoAsesor,
         _id: resultado.insertedId,
         url: `https://tuplanisapre.vercel.app/${url_slug}`,
-        clientes_unicos: Array.from(nuevoAsesor.clientes_unicos)
+        clientes_unicos: nuevoAsesor.clientes_unicos
       }
     });
   } catch (error) {
@@ -682,6 +682,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
