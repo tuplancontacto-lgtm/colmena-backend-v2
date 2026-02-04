@@ -426,6 +426,9 @@ try {
 
   const telAsesor = normalizarTelefono(asesor.telefono); // lo que guardas en el panel admin
   if (telAsesor) {
+    const sieteUFNum  = Number(sieteUF || 0);
+const sieteCLPNum = Number(sieteCLP || 0);
+
     const msg = [
   "📌 Nueva cotización en tu landing",
           `Asesor: ${asesor.nombre} (${asesor.url_slug})`,
@@ -435,15 +438,18 @@ try {
           `Edad: ${edad ? `${edad} años` : "Sin edad"}`,
           `Email: ${cliente_email || "Sin email"}`,
           `Región: ${region || "-"}`,
-          `Renta: ${renta || "-"}`,
+          `Renta: ${renta ? `$${Number(renta).toLocaleString("es-CL")}` : "-"}`,
           `Cargas: ${
             Array.isArray(cargas) ? cargas.join(", ") : (cargas || "-")
           }`,
           `7% en UF: ${sieteUF || "-"}`,
-          `7% en CLP: ${sieteCLP || "-"}`,
+          `7% en CLP: ${
+    sieteCLPNum
+      ? `$${sieteCLPNum.toLocaleString("es-CL")} (${sieteUFNum.toFixed(2)} UF)`
+      : "-"
+  }`,
           `Plan 1: ${plan1 || "-"}`,
           `Plan 2: ${plan2 || "-"}`,
-          `Monto: ${monto || "-"}`,
           `Fecha: ${new Date().toLocaleString("es-CL")}`
         ].join("\n");;
 
@@ -727,6 +733,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
