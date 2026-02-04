@@ -450,14 +450,29 @@ try {
     await actividadCollection.insertOne(registro_actividad);
 
     // Actualizar contador de cotizaciones
-    const asesor = await asesorCollection.findOne({ url_slug: slug });
+      const asesor = await asesorCollection.findOne({ url_slug: slug });
+
+    const clienteId = cliente_email || req.ip;
+
+    const update = {
+      $set: {
+        cotizaciones_generadas: (asesor?.cotizaciones_generadas || 0) + 1
+      }
+    };
+
+    // Si clientes_unicos ya es array 👉 usamos $addToSet
+    if (Array.isArray(asesor.clientes_unicos)) {
+      update.$addToSet = { clientes_unicos: clienteId };
+    } else {
+      // Si es objeto / Set viejo 👉 lo pasamos a array
+      update.$set.clientes_unicos = [clienteId];
+    }
+
     await asesorCollection.updateOne(
       { url_slug: slug },
-      {
-        $set: { cotizaciones_generadas: (asesor.cotizaciones_generadas || 0) + 1 },
-        $addToSet: { clientes_unicos: cliente_email || req.ip }
-      }
+      update
     );
+
 
     res.json({ success: true });
   } catch (error) {
@@ -682,6 +697,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
