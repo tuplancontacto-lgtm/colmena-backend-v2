@@ -503,7 +503,24 @@ const sieteCLPNum = Number(sieteCLP || 0);
           `Fecha: ${ahoraChile}`
 ].join("\n");
 
-    await enviarWhatsAppTexto({ to: telAsesor, body: msg });
+    if (asesor.apikey && asesor.apikey.trim() !== "") {
+
+  console.log("🟡 registrar-cotizacion usando CallMeBot");
+
+  await enviarCallMeBotTexto({
+    to: telAsesor,
+    body: msg,
+    apikey: asesor.apikey
+  });
+
+} else {
+
+  await enviarWhatsAppTexto({
+    to: telAsesor,
+    body: msg
+  });
+
+}
   } else {
     console.warn("⚠️ Asesor sin teléfono en DB:", asesor.url_slug);
   }
@@ -529,7 +546,6 @@ const sieteCLPNum = Number(sieteCLP || 0);
       sieteCLP,
       plan1,
       plan2,
-      monto,
       ip: req.ip
     };
 
@@ -783,6 +799,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
