@@ -124,7 +124,27 @@ async function enviarWhatsAppTexto({ to, body }) {
   return data;
 }
 
+// ============================================
+// FUNCIÓN CALLMEBOT (NO INTERFIERE CON META)
+// ============================================
 
+async function enviarCallMeBotTexto({ to, body, apikey }) {
+  const toDigits = normalizarTelefono(to);
+
+  if (!toDigits || !apikey) {
+    throw new Error("CallMeBot: faltan datos");
+  }
+
+  const url = `https://api.callmebot.com/whatsapp.php?phone=${toDigits}&text=${encodeURIComponent(body)}&apikey=${apikey}`;
+
+  const resp = await fetch(url);
+
+  if (!resp.ok) {
+    throw new Error("Error enviando con CallMeBot");
+  }
+
+  return { success: true };
+}
 
 // ✅ Diagnóstico rápido: ver si están cargadas las variables de WhatsApp
 app.get("/api/whatsapp-status", (req, res) => {
@@ -221,10 +241,27 @@ app.post('/api/enviar-lead', async (req, res) => {
       });
     }
 
-    const result = await enviarWhatsAppTexto({
-      to: telAsesor,
-      body: mensaje
-    });
+    let result;
+
+if (validacion.asesor.apikey && validacion.asesor.apikey.trim() !== "") {
+
+  console.log("🟡 Usando CallMeBot (asesor con apikey)");
+
+  result = await enviarCallMeBotTexto({
+    to: telAsesor,
+    body: mensaje,
+    apikey: validacion.asesor.apikey
+  });
+
+} else {
+
+  // 🔵 ESTA ES TU LÓGICA ACTUAL SIN MODIFICAR
+  result = await enviarWhatsAppTexto({
+    to: telAsesor,
+    body: mensaje
+  });
+
+}
 
     res.json({ success: true, result });
 
@@ -746,6 +783,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
