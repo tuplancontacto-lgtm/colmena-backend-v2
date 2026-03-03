@@ -732,25 +732,26 @@ app.post('/api/asesores/:slug/activar', async (req, res) => {
     res.status(500).json({ error: 'Error activando asesor' });
   }
 });
+
 // EDITAR ASESOR
 app.put('/api/asesores/:slug/editar', async (req, res) => {
   try {
     const { slug } = req.params;
-    const { nombre, email, telefono } = req.body;
-
+    const { nombre, email, telefono, empresa, apikey, con_teleprompter } = req.body;
     if (!nombre || !email || !telefono) {
       return res.status(400).json({ error: 'Faltan datos' });
     }
-
+    const updateFields = { nombre, email, telefono };
+    if (empresa) updateFields.empresa = empresa;
+    if (apikey !== undefined) updateFields.apikey = apikey;
+    if (con_teleprompter !== undefined) updateFields.con_teleprompter = con_teleprompter;
     const resultado = await asesorCollection.updateOne(
       { url_slug: slug },
-      { $set: { nombre, email, telefono } }
+      { $set: updateFields }
     );
-
     if (resultado.modifiedCount === 0) {
       return res.status(404).json({ error: 'Asesor no encontrado' });
     }
-
     res.json({ success: true, message: 'Asesor actualizado' });
   } catch (error) {
     console.error('Error editando asesor:', error);
@@ -819,6 +820,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
