@@ -543,4 +543,33 @@ async function verActividad(slug, nombre) {
             const fecha = new Date(reg.fecha).toLocaleString('es-CL');
             html += `<div style="padding:10px;border-bottom:1px solid #eee;font-size:12px;">
                 <strong>${reg.tipo==='cotizacion'?'💰':'👤'} ${reg.cliente_nombre||'Anónimo'}</strong><br>
-                ${reg.tipo==='cotizacion'?`
+                ${reg.tipo==='cotizacion'?`Planes: ${reg.plan1||'-'} / ${reg.plan2||'-'}`:'Acceso a landing'}<br>
+                <small style="color:#999;">${fecha}</small></div>`;
+        });
+        html += '</div>';
+        document.getElementById('asesorNombre').textContent = nombre;
+        document.getElementById('actividadLista').innerHTML  = html;
+        document.getElementById('modalActividad').classList.add('visible');
+    } catch { alert('Error cargando actividad'); }
+}
+
+function cerrarModal() { document.getElementById('modalActividad').classList.remove('visible'); }
+
+function actualizarStats() {
+    const ahora = new Date();
+    const activos   = todosLosAsesores.filter(a => a.estado==='activo' && ahora <= new Date(a.fecha_expiracion)).length;
+    const porVencer = todosLosAsesores.filter(a => { const d=Math.ceil((new Date(a.fecha_expiracion)-ahora)/86400000); return d>0&&d<=5; }).length;
+    document.getElementById('st-activos').textContent = activos;
+    document.getElementById('st-vencer').textContent  = porVencer;
+    document.getElementById('st-tp').textContent      = Object.keys(tpData).length;
+    document.getElementById('st-total').textContent   = todosLosAsesores.length;
+}
+
+function alerta(id, msg, tipo) {
+    const el = document.getElementById(id);
+    el.innerHTML = `<div class="alert alert-${tipo}">${msg}</div>`;
+    setTimeout(() => el.innerHTML = '', 6000);
+}
+</script>
+</body>
+</html>
