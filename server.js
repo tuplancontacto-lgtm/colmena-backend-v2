@@ -318,6 +318,25 @@ app.post('/api/asesores/crear', async (req, res) => {
     };
 
     const resultado = await asesorCollection.insertOne(nuevoAsesor);
+    // 🔵 CREAR USUARIO EN TELEPROMPTER
+try {
+  await fetch("https://teleprompter-backend-production.up.railway.app/api/teleprompter", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      nombre: nuevoAsesor.nombre,
+      slug: nuevoAsesor.url_slug,
+      dias: parseInt(dias_pagados)
+    })
+  });
+
+  console.log("✅ Usuario creado en teleprompter:", nuevoAsesor.url_slug);
+
+} catch (error) {
+  console.error("❌ Error creando usuario en teleprompter:", error.message);
+}
 
     res.json({
       success: true,
@@ -799,6 +818,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
