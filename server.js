@@ -293,9 +293,10 @@ app.post('/api/asesores/crear', async (req, res) => {
       contador++;
     }
 
-    const ahora = new Date();
-    const fecha_expiracion = new Date(ahora);
-    fecha_expiracion.setDate(fecha_expiracion.getDate() + parseInt(dias_pagados));
+   const ahora = new Date();
+const fecha_expiracion = new Date(ahora);
+const diasParaExpiracion = con_landing !== false ? parseInt(dias_pagados) : parseInt(dias_teleprompter || 0);
+fecha_expiracion.setDate(fecha_expiracion.getDate() + diasParaExpiracion);
 
     const nuevoAsesor = {
       nombre,
@@ -818,6 +819,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
