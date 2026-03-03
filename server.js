@@ -277,7 +277,7 @@ if (validacion.asesor.apikey && validacion.asesor.apikey.trim() !== "") {
 // CREAR NUEVO ASESOR
 app.post('/api/asesores/crear', async (req, res) => {
   try {
-    const { nombre, email, telefono, empresa, dias_pagados, apikey } = req.body;
+    const { nombre, email, telefono, empresa, dias_pagados, apikey, con_landing, con_teleprompter, dias_teleprompter } = req.body;
 
     if (!nombre || !email || !telefono || !empresa || !dias_pagados) {
       return res.status(400).json({ error: 'Faltan datos requeridos' });
@@ -314,28 +314,28 @@ app.post('/api/asesores/crear', async (req, res) => {
       ultimo_acceso: null,
       fecha_cancelacion: null,
       razon_cancelacion: null,
-      renovaciones: []
+      renovaciones: [],
+      con_landing: con_landing !== false,
+      con_teleprompter: con_teleprompter === true
     };
 
     const resultado = await asesorCollection.insertOne(nuevoAsesor);
-    // 🔵 CREAR USUARIO EN TELEPROMPTER
-try {
-  await fetch("https://teleprompter-backend-production.up.railway.app/api/teleprompter", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      nombre: nuevoAsesor.nombre,
-      slug: nuevoAsesor.url_slug,
-      dias: parseInt(dias_pagados)
-    })
-  });
-
-  console.log("✅ Usuario creado en teleprompter:", nuevoAsesor.url_slug);
-
-} catch (error) {
-  console.error("❌ Error creando usuario en teleprompter:", error.message);
+    // 🔵 CREAR USUARIO EN TELEPROMPTER (solo si fue solicitado)
+if (con_teleprompter && dias_teleprompter && parseInt(dias_teleprompter) > 0) {
+  try {
+    await fetch("https://teleprompter-backend-production.up.railway.app/api/teleprompter", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        nombre: nuevoAsesor.nombre,
+        slug: nuevoAsesor.url_slug,
+        dias: parseInt(dias_teleprompter)
+      })
+    });
+    console.log("✅ Usuario creado en teleprompter:", nuevoAsesor.url_slug);
+  } catch (error) {
+    console.error("❌ Error creando usuario en teleprompter:", error.message);
+  }
 }
 
     res.json({
@@ -818,6 +818,7 @@ app.listen(PORT, "0.0.0.0", () => {
 connectDB().catch(err => {
   console.error("❌ MongoDB no disponible al iniciar:", err);
 });
+
 
 
 
