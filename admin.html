@@ -408,27 +408,54 @@ async function activarTPRapido(slug, nombre) {
 
 async function activarTP(slug, nombre, dias, alertId) {
     try {
-        const r = await fetch(`${API_TP}/teleprompter`, {
+        // Primero intentar renovar (por si ya existe en teleprompter-backend)
+        const rRenovar = await fetch(`${API_TP}/teleprompter/${slug}/renovar`, {
             method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ nombre, slug, dias })
+            body: JSON.stringify({ dias: parseInt(dias) })
         });
-        const d = await r.json();
-        if (d.creado || d.success || d.error?.includes('duplicate')) {
-            const urlTp = `${URL_TP}/${slug}`;
-            if (alertId) {
-                alerta(alertId, `✅ Teleprompter activado<br>🔗 <a href="${urlTp}" target="_blank">${urlTp}</a>`, 'success');
-                document.getElementById('buscador').value = '';
-                document.getElementById('resultados-busqueda').innerHTML = '';
-                document.getElementById('form-agregar-mod').style.display = 'none';
-            } else {
-                await navigator.clipboard.writeText(urlTp).catch(()=>{});
-                alert(`✅ Teleprompter activado para ${nombre}\n\n🔗 ${urlTp}\n\n(Link copiado al portapapeles)`);
+        const dRenovar = await rRenovar.json();
+
+        // Si no existe, crear nuevo
+        if (!dRenovar.success && !dRenovar.ok) {
+            const rCrear = await fetch(`${API_TP}/teleprompter`, {
+                method:'POST', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({ nombre, slug, dias: parseInt(dias) })
+            });
+            const dCrear = await rCrear.json();
+            if (!dCrear.creado && !dCrear.success) {
+                const msg = '❌ Error activando teleprompter';
+                if (alertId) alerta(alertId, msg, 'error'); else alert(msg);
+                return;
             }
-            cargarAsesores();
-        } else {
-            const msg = '❌ Error activando teleprompter';
-            if (alertId) alerta(alertId, msg, 'error'); else alert(msg);
         }
+
+        // Marcar con_teleprompter: true en landing
+        const asesor = todosLosAsesores.find(a => a.url_slug === slug);
+        if (asesor) {
+            await fetch(`${API_LANDING}/asesores/${slug}/editar`, {
+                method:'PUT', headers:{'Content-Type':'application/json'},
+                body: JSON.stringify({
+                    nombre: asesor.nombre,
+                    email: asesor.email,
+                    telefono: asesor.telefono,
+                    empresa: asesor.empresa,
+                    apikey: asesor.apikey || '',
+                    con_teleprompter: true
+                })
+            });
+        }
+
+        const urlTp = `${URL_TP}/${slug}`;
+        if (alertId) {
+            alerta(alertId, `✅ Teleprompter activado<br>🔗 <a href="${urlTp}" target="_blank">${urlTp}</a>`, 'success');
+            document.getElementById('buscador').value = '';
+            document.getElementById('resultados-busqueda').innerHTML = '';
+            document.getElementById('form-agregar-mod').style.display = 'none';
+        } else {
+            await navigator.clipboard.writeText(urlTp).catch(()=>{});
+            alert(`✅ Teleprompter activado para ${nombre}\n\n🔗 ${urlTp}\n\n(Link copiado al portapapeles)`);
+        }
+        cargarAsesores();
     } catch {
         const msg = '❌ Error de conexión';
         if (alertId) alerta(alertId, msg, 'error'); else alert(msg);
