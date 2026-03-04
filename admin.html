@@ -3,244 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Panel Admin - Gestión de Asesores Colmena</title>
+    <title>Panel Admin - Asesores Colmena</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
-        .container { max-width: 1500px; margin: 0 auto; }
-        header { background: white; padding: 30px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        header h1 { color: #333; margin-bottom: 5px; }
-        header p { color: #666; font-size: 14px; }
-        .content { display: grid; grid-template-columns: 380px 1fr; gap: 20px; margin-bottom: 30px; }
-        .card { background: white; padding: 25px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
-        .card h2 { color: #333; margin-bottom: 20px; font-size: 18px; border-bottom: 2px solid #667eea; padding-bottom: 10px; }
-        .form-group { margin-bottom: 14px; }
-        label { display: block; margin-bottom: 5px; color: #333; font-weight: 500; font-size: 13px; }
-        input, select { width: 100%; padding: 9px; border: 1px solid #ddd; border-radius: 5px; font-size: 13px; font-family: inherit; }
-        input:focus, select:focus { outline: none; border-color: #667eea; box-shadow: 0 0 5px rgba(102,126,234,0.3); }
-        button { width: 100%; padding: 11px; background: #667eea; color: white; border: none; border-radius: 5px; font-size: 14px; font-weight: 600; cursor: pointer; transition: background 0.3s; }
-        button:hover { background: #5568d3; }
-        .tabs { display: flex; gap: 0; margin-bottom: 20px; border-bottom: 2px solid #667eea; }
-        .tab { padding: 9px 14px; cursor: pointer; font-weight: 600; font-size: 13px; color: #666; border-radius: 8px 8px 0 0; transition: all 0.2s; }
-        .tab.active { background: #667eea; color: white; }
-        .tab-content { display: none; }
-        .tab-content.active { display: block; }
-        .producto-box { border: 2px solid #ddd; border-radius: 8px; padding: 12px; margin-bottom: 10px; transition: border-color 0.2s; }
-        .producto-box.activo { border-color: #667eea; background: #f8f8ff; }
-        .producto-header { display: flex; align-items: center; gap: 10px; cursor: pointer; }
-        .producto-header input[type=checkbox] { width: 18px; height: 18px; margin: 0; cursor: pointer; }
-        .producto-header span { font-weight: 600; font-size: 14px; color: #333; }
-        .producto-dias { margin-top: 10px; display: none; }
-        .producto-dias.visible { display: block; }
-        .search-result { border: 1px solid #ddd; border-radius: 8px; padding: 10px; margin-top: 6px; cursor: pointer; transition: background 0.2s; }
-        .search-result:hover { background: #f0f0ff; border-color: #667eea; }
-        .search-result.selected { background: #f0f0ff; border-color: #667eea; border-width: 2px; }
-        .alert { padding: 12px; border-radius: 5px; margin-bottom: 12px; font-size: 13px; }
-        .alert-success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .alert-error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 20px; }
-        .stat-card { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 20px; border-radius: 10px; text-align: center; }
-        .stat-number { font-size: 28px; font-weight: bold; margin-bottom: 5px; }
-        .stat-label { font-size: 12px; opacity: 0.8; }
-        .asesores-list { display: flex; flex-direction: column; gap: 14px; margin-top: 10px; }
-        .asesor-card { border: 1px solid #e0e0e0; border-radius: 10px; overflow: hidden; }
-        .asesor-header { background: #f7f7ff; padding: 12px 16px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #e0e0e0; }
-        .asesor-nombre { font-weight: 700; font-size: 15px; color: #333; }
-        .asesor-email { font-size: 12px; color: #777; margin-top: 2px; }
-        .asesor-acciones-top { display: flex; gap: 6px; }
-        .modulos { padding: 12px 16px; display: flex; flex-direction: column; gap: 10px; }
-        .modulo-row { display: flex; align-items: center; gap: 10px; padding: 10px 12px; border-radius: 8px; border: 1px solid #eee; background: #fafafa; flex-wrap: wrap; }
-        .modulo-row.landing { border-left: 4px solid #667eea; }
-        .modulo-row.teleprompter { border-left: 4px solid #00b894; }
-        .modulo-row.inactivo { border-left: 4px solid #ccc; opacity: 0.6; }
-        .modulo-icon { font-size: 18px; min-width: 24px; }
-        .modulo-info { flex: 1; min-width: 120px; }
-        .modulo-nombre { font-weight: 600; font-size: 13px; color: #333; }
-        .modulo-fecha { font-size: 11px; color: #888; margin-top: 2px; }
-        .modulo-btns { display: flex; gap: 5px; flex-wrap: wrap; }
-        .status { padding: 3px 9px; border-radius: 20px; font-size: 11px; font-weight: 700; display: inline-block; margin-top: 3px; }
-        .status.activo { background: #d4edda; color: #155724; }
-        .status.expirado { background: #f8d7da; color: #721c24; }
-        .status.revocado { background: #e2e3e5; color: #383d41; }
-        .status.inactivo { background: #f0f0f0; color: #999; }
-        .btn-s { padding: 5px 10px; font-size: 11px; border: none; border-radius: 4px; cursor: pointer; color: white; font-weight: 600; white-space: nowrap; }
-        .btn-copiar  { background: #17a2b8; }
-        .btn-renovar { background: #28a745; }
-        .btn-revocar { background: #dc3545; }
-        .btn-tp      { background: #00b894; }
-        .btn-edit    { background: #6c757d; }
-        .btn-del     { background: #dc3545; }
-        .btn-s:hover { opacity: 0.85; }
-        .loading { text-align: center; color: #666; font-size: 14px; padding: 40px; }
-        .spinner { display: inline-block; width: 20px; height: 20px; border: 3px solid #f3f3f3; border-top: 3px solid #667eea; border-radius: 50%; animation: spin 1s linear infinite; }
-        @keyframes spin { 0%{transform:rotate(0deg)} 100%{transform:rotate(360deg)} }
-        .modal { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center; }
-        .modal.visible { display: flex; }
-        .modal-content { background: white; padding: 30px; border-radius: 10px; max-width: 500px; width: 90%; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
-        .modal-content h3 { margin-bottom: 20px; color: #333; }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 20px; }
-        .modal-buttons button { flex: 1; }
-        @media (max-width: 900px) {
-            .content { grid-template-columns: 1fr; }
-            .asesor-header { flex-direction: column; align-items: flex-start; gap: 8px; }
-            .modulo-row { flex-direction: column; align-items: flex-start; }
+        * { margin:0; padding:0; box-sizing:border-box; }
+        body { font-family:'Segoe UI',sans-serif; background:linear-gradient(135deg,#667eea,#764ba2); min-height:100vh; padding:20px; }
+        .container { max-width:1500px; margin:0 auto; }
+        header { background:white; padding:24px 30px; border-radius:10px; margin-bottom:20px; box-shadow:0 2px 10px rgba(0,0,0,.1); display:flex; justify-content:space-between; align-items:center; }
+        header h1 { color:#333; font-size:20px; }
+        header p { color:#888; font-size:13px; margin-top:3px; }
+
+        .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:20px; }
+        .stat-card { background:linear-gradient(135deg,#667eea,#764ba2); color:white; padding:16px; border-radius:10px; text-align:center; }
+        .stat-number { font-size:26px; font-weight:700; }
+        .stat-label { font-size:11px; opacity:.8; margin-top:3px; }
+
+        .layout { display:grid; grid-template-columns:360px 1fr; gap:20px; }
+        .card { background:white; border-radius:10px; box-shadow:0 2px 10px rgba(0,0,0,.1); overflow:hidden; }
+
+        /* TABS */
+        .tabs { display:flex; border-bottom:2px solid #667eea; }
+        .tab { flex:1; padding:12px; text-align:center; cursor:pointer; font-weight:600; font-size:13px; color:#888; transition:all .2s; }
+        .tab.active { background:#667eea; color:white; }
+        .tab-body { padding:20px; display:none; }
+        .tab-body.active { display:block; }
+
+        /* FORM */
+        .form-group { margin-bottom:12px; }
+        .form-group label { display:block; font-size:12px; font-weight:600; color:#555; margin-bottom:4px; }
+        .form-group input, .form-group select { width:100%; padding:9px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px; font-family:inherit; }
+        .form-group input:focus, .form-group select:focus { outline:none; border-color:#667eea; }
+
+        .modulo-box { border:2px solid #eee; border-radius:8px; padding:10px 12px; margin-bottom:8px; }
+        .modulo-box.on { border-color:#667eea; background:#f8f8ff; }
+        .modulo-check { display:flex; align-items:center; gap:8px; cursor:pointer; }
+        .modulo-check input { width:16px; height:16px; cursor:pointer; }
+        .modulo-check span { font-weight:600; font-size:13px; }
+        .modulo-dias { margin-top:8px; display:none; }
+        .modulo-dias.show { display:block; }
+
+        .btn { width:100%; padding:11px; border:none; border-radius:6px; font-size:14px; font-weight:600; cursor:pointer; color:white; transition:opacity .2s; }
+        .btn:hover { opacity:.88; }
+        .btn-primary { background:#667eea; }
+        .btn-green { background:#00b894; }
+
+        /* BUSCADOR */
+        .search-box { position:relative; margin-bottom:10px; }
+        .search-box input { width:100%; padding:9px 10px 9px 32px; border:1px solid #ddd; border-radius:6px; font-size:13px; }
+        .search-box::before { content:'🔍'; position:absolute; left:9px; top:9px; font-size:13px; }
+        .search-result { padding:9px 12px; border:1px solid #eee; border-radius:7px; margin-bottom:5px; cursor:pointer; transition:background .15s; }
+        .search-result:hover, .search-result.sel { background:#f0f0ff; border-color:#667eea; }
+        .search-result strong { font-size:13px; color:#333; }
+        .search-result small { color:#888; font-size:11px; }
+
+        .asesor-preview { background:#f8f8ff; border:2px solid #667eea; border-radius:8px; padding:10px 12px; margin-bottom:12px; font-size:13px; }
+        .asesor-preview strong { color:#333; }
+        .asesor-preview small { color:#666; display:block; margin-top:2px; }
+
+        /* ALERT */
+        .alert { padding:10px 12px; border-radius:6px; font-size:13px; margin-bottom:12px; }
+        .alert-success { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+        .alert-error { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+
+        /* LISTA ASESORES */
+        .list-header { padding:16px 20px; border-bottom:1px solid #eee; display:flex; gap:10px; align-items:center; }
+        .list-header h2 { font-size:16px; color:#333; flex:1; }
+        .filter-input { padding:7px 10px; border:1px solid #ddd; border-radius:6px; font-size:13px; width:220px; }
+
+        .asesores-list { padding:16px; display:flex; flex-direction:column; gap:12px; max-height:calc(100vh - 260px); overflow-y:auto; }
+
+        .asesor-card { border:1px solid #e8e8e8; border-radius:10px; overflow:hidden; }
+        .asesor-head { background:#f7f7ff; padding:10px 14px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #eee; gap:8px; flex-wrap:wrap; }
+        .asesor-info strong { font-size:14px; color:#333; }
+        .asesor-info small { font-size:11px; color:#888; display:block; }
+        .asesor-top-btns { display:flex; gap:5px; }
+
+        .modulos-wrap { padding:10px 14px; display:flex; flex-direction:column; gap:8px; }
+        .mod-row { display:flex; align-items:center; gap:10px; padding:9px 12px; border-radius:8px; border:1px solid #eee; background:#fafafa; flex-wrap:wrap; }
+        .mod-row.land { border-left:4px solid #667eea; }
+        .mod-row.tele { border-left:4px solid #00b894; }
+        .mod-row.off  { border-left:4px solid #ddd; opacity:.6; }
+        .mod-icon { font-size:17px; min-width:22px; }
+        .mod-info { flex:1; min-width:110px; }
+        .mod-name { font-weight:600; font-size:12px; color:#333; }
+        .mod-date { font-size:11px; color:#888; margin-top:1px; }
+        .mod-btns { display:flex; gap:4px; flex-wrap:wrap; }
+
+        .status { display:inline-block; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:700; margin-top:3px; }
+        .status.activo    { background:#d4edda; color:#155724; }
+        .status.expirado  { background:#f8d7da; color:#721c24; }
+        .status.revocado  { background:#e2e3e5; color:#383d41; }
+        .status.inactivo  { background:#f0f0f0; color:#aaa; }
+
+        .bs { padding:5px 9px; font-size:11px; border:none; border-radius:4px; cursor:pointer; color:white; font-weight:600; white-space:nowrap; transition:opacity .2s; }
+        .bs:hover { opacity:.85; }
+        .bs-copy   { background:#17a2b8; }
+        .bs-renew  { background:#28a745; }
+        .bs-rev    { background:#fd7e14; }
+        .bs-del    { background:#dc3545; }
+        .bs-add    { background:#00b894; }
+        .bs-edit   { background:#6c757d; }
+
+        /* MODAL EDITAR */
+        .modal { display:none; position:fixed; inset:0; background:rgba(0,0,0,.5); z-index:1000; align-items:center; justify-content:center; }
+        .modal.show { display:flex; }
+        .modal-box { background:white; border-radius:12px; padding:28px; width:90%; max-width:460px; box-shadow:0 8px 30px rgba(0,0,0,.2); }
+        .modal-box h3 { font-size:16px; color:#333; margin-bottom:18px; border-bottom:2px solid #667eea; padding-bottom:10px; }
+        .modal-footer { display:flex; gap:10px; margin-top:18px; }
+        .modal-footer button { flex:1; }
+        .btn-gray { background:#6c757d; }
+
+        /* MODAL ACTIVIDAD */
+        .act-list { max-height:350px; overflow-y:auto; margin-top:10px; }
+        .act-item { padding:9px 0; border-bottom:1px solid #eee; font-size:12px; }
+        .act-item:last-child { border:none; }
+
+        .loading { padding:40px; text-align:center; color:#888; }
+        .spinner { display:inline-block; width:20px; height:20px; border:3px solid #eee; border-top-color:#667eea; border-radius:50%; animation:spin 1s linear infinite; margin-right:8px; }
+        @keyframes spin { to { transform:rotate(360deg); } }
+
+        @media(max-width:900px) {
+            .layout { grid-template-columns:1fr; }
+            .asesor-head { flex-direction:column; align-items:flex-start; }
         }
     </style>
 </head>
 <body>
 <div class="container">
     <header>
-        <h1>👥 Panel de Administración - Asesores Colmena</h1>
-        <p>Gestiona Landing, Teleprompter y más módulos por asesor</p>
+        <div>
+            <h1>👥 Panel Admin — Asesores Colmena</h1>
+            <p>Gestiona Landing y Teleprompter de forma independiente</p>
+        </div>
     </header>
 
     <div class="stats">
-        <div class="stat-card"><div class="stat-number" id="st-activos">0</div><div class="stat-label">Asesores Activos</div></div>
-        <div class="stat-card"><div class="stat-number" id="st-vencer">0</div><div class="stat-label">Por Vencer (5 días)</div></div>
-        <div class="stat-card"><div class="stat-number" id="st-tp">0</div><div class="stat-label">Con Teleprompter</div></div>
         <div class="stat-card"><div class="stat-number" id="st-total">0</div><div class="stat-label">Total Asesores</div></div>
+        <div class="stat-card"><div class="stat-number" id="st-activos">0</div><div class="stat-label">Landing Activa</div></div>
+        <div class="stat-card"><div class="stat-number" id="st-tp">0</div><div class="stat-label">Teleprompter Activo</div></div>
+        <div class="stat-card"><div class="stat-number" id="st-vencer">0</div><div class="stat-label">Por Vencer (5 días)</div></div>
     </div>
 
-    <div class="content">
+    <div class="layout">
+        <!-- PANEL IZQUIERDO -->
         <div class="card">
             <div class="tabs">
-                <div class="tab active" onclick="cambiarTab('nuevo',this)">➕ Nuevo</div>
-                <div class="tab" onclick="cambiarTab('agregar',this)">🎬 Agregar módulo</div>
+                <div class="tab active" onclick="tab('nuevo',this)">➕ Nuevo Asesor</div>
+                <div class="tab" onclick="tab('tp',this)">🎬 Agregar Teleprompter</div>
             </div>
 
-            <div id="tab-nuevo" class="tab-content active">
-                <div id="alert"></div>
-                <form id="formAsesor">
-                    <div class="form-group"><label>Nombre *</label><input type="text" id="nombre" required placeholder="Juan Pérez"></div>
-                    <div class="form-group"><label>Email *</label><input type="email" id="email" required placeholder="juan@example.com"></div>
-                    <div class="form-group"><label>Teléfono *</label><input type="tel" id="telefono" required placeholder="+56912345678"></div>
-                    <div class="form-group"><label>Empresa *</label><input type="text" id="empresa" required placeholder="Colmena"></div>
-                    <div class="form-group"><label>API Key CallMeBot (opcional)</label><input type="text" id="apikey" placeholder="Ej: 7360481"></div>
+            <!-- TAB NUEVO -->
+            <div id="tab-nuevo" class="tab-body active">
+                <div id="alert-nuevo"></div>
+                <form id="fNuevo">
+                    <div class="form-group"><label>Nombre *</label><input id="n-nombre" required placeholder="Juan Pérez"></div>
+                    <div class="form-group"><label>Email *</label><input id="n-email" type="email" required placeholder="juan@colmena.cl"></div>
+                    <div class="form-group"><label>Teléfono *</label><input id="n-tel" required placeholder="+56912345678"></div>
+                    <div class="form-group"><label>Empresa *</label><input id="n-empresa" required placeholder="Colmena"></div>
+                    <div class="form-group"><label>API Key CallMeBot (opcional)</label><input id="n-api" placeholder="Ej: 7360481"></div>
                     <div class="form-group">
                         <label>Módulos a activar *</label>
-                        <div class="producto-box" id="box-landing">
-                            <div class="producto-header" onclick="toggleProducto('landing')">
-                                <input type="checkbox" id="check-landing" onchange="toggleProducto('landing')">
+                        <div class="modulo-box" id="mbox-landing">
+                            <div class="modulo-check" onclick="toggleMod('landing')">
+                                <input type="checkbox" id="mc-landing" onchange="toggleMod('landing')">
                                 <span>🌐 Landing (Cotizador)</span>
                             </div>
-                            <div class="producto-dias" id="dias-landing">
-                                <label>Días de acceso</label>
-                                <select id="dias-landing-val"><option value="">-- Selecciona --</option><option value="7">7 días</option><option value="15">15 días</option><option value="30">30 días</option><option value="60">60 días</option><option value="90">90 días</option><option value="180">180 días</option><option value="365">365 días</option></select>
+                            <div class="modulo-dias" id="md-landing">
+                                <div class="form-group" style="margin-top:8px;margin-bottom:0">
+                                    <label>Días de acceso</label>
+                                    <select id="md-landing-val"><option value="">-- Selecciona --</option><option value="7">7 días</option><option value="15">15 días</option><option value="30">30 días</option><option value="60">60 días</option><option value="90">90 días</option><option value="180">180 días</option><option value="365">365 días</option></select>
+                                </div>
                             </div>
                         </div>
-                        <div class="producto-box" id="box-teleprompter">
-                            <div class="producto-header" onclick="toggleProducto('teleprompter')">
-                                <input type="checkbox" id="check-teleprompter" onchange="toggleProducto('teleprompter')">
+                        <div class="modulo-box" id="mbox-tp">
+                            <div class="modulo-check" onclick="toggleMod('tp')">
+                                <input type="checkbox" id="mc-tp" onchange="toggleMod('tp')">
                                 <span>🎬 Teleprompter</span>
                             </div>
-                            <div class="producto-dias" id="dias-teleprompter">
-                                <label>Días de acceso</label>
-                                <select id="dias-teleprompter-val"><option value="">-- Selecciona --</option><option value="7">7 días</option><option value="15">15 días</option><option value="30">30 días</option><option value="60">60 días</option><option value="90">90 días</option><option value="180">180 días</option><option value="365">365 días</option></select>
+                            <div class="modulo-dias" id="md-tp">
+                                <div class="form-group" style="margin-top:8px;margin-bottom:0">
+                                    <label>Días de acceso</label>
+                                    <select id="md-tp-val"><option value="">-- Selecciona --</option><option value="7">7 días</option><option value="15">15 días</option><option value="30">30 días</option><option value="60">60 días</option><option value="90">90 días</option><option value="180">180 días</option><option value="365">365 días</option></select>
+                                </div>
                             </div>
                         </div>
                     </div>
-                    <button type="submit">Crear Asesor</button>
+                    <button type="submit" class="btn btn-primary">Crear Asesor</button>
                 </form>
             </div>
 
-            <div id="tab-agregar" class="tab-content">
-                <div id="alert2"></div>
-                <div class="form-group">
-                    <label>Buscar asesor existente</label>
-                    <input type="text" id="buscador" placeholder="Escribe nombre o email..." oninput="buscarAsesor()">
+            <!-- TAB AGREGAR TELEPROMPTER -->
+            <div id="tab-tp" class="tab-body">
+                <div id="alert-tp"></div>
+                <div class="search-box">
+                    <input id="tp-buscar" placeholder="Buscar asesor por nombre o email..." oninput="buscarParaTP()">
                 </div>
-                <div id="resultados-busqueda"></div>
-                <div id="form-agregar-mod" style="display:none; margin-top:16px;">
-                    <div style="background:#f8f8ff; border:2px solid #667eea; border-radius:8px; padding:12px; margin-bottom:14px;">
-                        <strong id="mod-nombre"></strong><br>
-                        <small id="mod-email" style="color:#666;"></small><br>
-                        <small id="mod-tel" style="color:#666;"></small>
+                <div id="tp-resultados"></div>
+                <div id="tp-form" style="display:none; margin-top:12px;">
+                    <div class="asesor-preview">
+                        <strong id="tp-nombre"></strong>
+                        <small id="tp-email"></small>
+                        <small id="tp-tel"></small>
                     </div>
                     <div class="form-group">
-                        <label>Módulo a agregar</label>
-                        <select id="mod-tipo" onchange="mostrarDiasMod()">
-                            <option value="">-- Selecciona módulo --</option>
-                            <option value="teleprompter">🎬 Teleprompter</option>
-                        </select>
+                        <label>Días de Teleprompter *</label>
+                        <select id="tp-dias"><option value="">-- Selecciona --</option><option value="7">7 días</option><option value="15">15 días</option><option value="30">30 días</option><option value="60">60 días</option><option value="90">90 días</option><option value="180">180 días</option><option value="365">365 días</option></select>
                     </div>
-                    <div id="dias-mod-wrap" style="display:none;">
-                        <div class="form-group">
-                            <label>Días de acceso</label>
-                            <select id="dias-mod"><option value="">-- Selecciona --</option><option value="7">7 días</option><option value="15">15 días</option><option value="30">30 días</option><option value="60">60 días</option><option value="90">90 días</option><option value="180">180 días</option><option value="365">365 días</option></select>
-                        </div>
-                        <button onclick="activarModuloExistente()" style="background:#00b894;">✅ Activar módulo</button>
-                    </div>
+                    <button class="btn btn-green" onclick="activarTPExistente()">🎬 Activar Teleprompter</button>
                 </div>
             </div>
         </div>
 
+        <!-- PANEL DERECHO -->
         <div class="card">
-            <h2>Asesores Registrados</h2>
-            <div id="asesorContainer" class="loading"><div class="spinner"></div> Cargando...</div>
+            <div class="list-header">
+                <h2>Asesores Registrados</h2>
+                <input class="filter-input" placeholder="🔍 Filtrar asesores..." oninput="filtrarLista(this.value)">
+            </div>
+            <div class="asesores-list" id="lista">
+                <div class="loading"><span class="spinner"></span>Cargando...</div>
+            </div>
         </div>
     </div>
 </div>
 
-<div id="modalActividad" class="modal">
-    <div class="modal-content">
-        <h3>Actividad de <span id="asesorNombre"></span></h3>
-        <div id="actividadLista"></div>
-        <div class="modal-buttons"><button style="background:#6c757d;" onclick="cerrarModal()">Cerrar</button></div>
+<!-- MODAL EDITAR -->
+<div class="modal" id="modalEditar">
+    <div class="modal-box">
+        <h3>✏️ Editar Asesor</h3>
+        <div class="form-group"><label>Nombre *</label><input id="e-nombre"></div>
+        <div class="form-group"><label>Email *</label><input id="e-email" type="email"></div>
+        <div class="form-group"><label>Teléfono *</label><input id="e-tel"></div>
+        <div class="form-group"><label>Empresa *</label><input id="e-empresa"></div>
+        <div class="form-group"><label>API Key CallMeBot</label><input id="e-api"></div>
+        <div class="modal-footer">
+            <button class="btn btn-gray" onclick="cerrarModal('modalEditar')">Cancelar</button>
+            <button class="btn btn-primary" onclick="guardarEdicion()">Guardar cambios</button>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ACTIVIDAD -->
+<div class="modal" id="modalActividad">
+    <div class="modal-box">
+        <h3>📊 Actividad — <span id="act-nombre"></span></h3>
+        <div class="act-list" id="act-lista"></div>
+        <div class="modal-footer">
+            <button class="btn btn-gray" onclick="cerrarModal('modalActividad')">Cerrar</button>
+        </div>
     </div>
 </div>
 
 <script>
-const API_LANDING = 'https://colmena-backend-v2-production.up.railway.app/api';
-const API_TP      = 'https://teleprompter-backend-production.up.railway.app/api';
-const URL_LANDING = 'https://tuplanisapre.vercel.app';
-const URL_TP      = 'https://teleprompter-tuplan.vercel.app';
+const API  = 'https://colmena-backend-v2-production.up.railway.app/api';
+const API_TP = 'https://teleprompter-backend-production.up.railway.app/api';
+const URL_L  = 'https://tuplanisapre.vercel.app';
+const URL_TP = 'https://teleprompter-tuplan.vercel.app';
 
-let slugSeleccionado = null;
-let asesorSeleccionado = null;
-let todosLosAsesores = [];
-let tpData = {};
+let asesores = [], tpMap = {}, editSlug = null, tpSlug = null, tpAsesor = null;
+let filtro = '';
 
-cargarAsesores();
+init();
 
-function cambiarTab(tab, el) {
+async function init() {
+    try {
+        const [rL, rT] = await Promise.all([
+            fetch(`${API}/asesores`),
+            fetch(`${API_TP}/teleprompter`).catch(() => null)
+        ]);
+        asesores = await rL.json();
+        tpMap = {};
+        if (rT?.ok) {
+            const list = await rT.json();
+            (Array.isArray(list) ? list : []).forEach(t => tpMap[t.slug] = t);
+        }
+        render();
+        stats();
+    } catch {
+        document.getElementById('lista').innerHTML = '<div class="alert alert-error">Error cargando datos</div>';
+    }
+}
+
+// ── TABS ──
+function tab(id, el) {
     document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-' + tab).classList.add('active');
+    document.querySelectorAll('.tab-body').forEach(t => t.classList.remove('active'));
     el.classList.add('active');
+    document.getElementById('tab-' + id).classList.add('active');
 }
 
-function toggleProducto(p) {
-    const check = document.getElementById('check-' + p);
-    const dias  = document.getElementById('dias-' + p);
-    const box   = document.getElementById('box-' + p);
-    if (document.activeElement !== check) check.checked = !check.checked;
-    dias.classList.toggle('visible', check.checked);
-    box.classList.toggle('activo', check.checked);
+// ── TOGGLE MÓDULOS ──
+function toggleMod(m) {
+    const chk = document.getElementById('mc-' + m);
+    const dias = document.getElementById('md-' + m);
+    const box  = document.getElementById('mbox-' + m);
+    if (document.activeElement !== chk) chk.checked = !chk.checked;
+    dias.classList.toggle('show', chk.checked);
+    box.classList.toggle('on', chk.checked);
 }
 
-function mostrarDiasMod() {
-    document.getElementById('dias-mod-wrap').style.display =
-        document.getElementById('mod-tipo').value ? 'block' : 'none';
-}
-
-document.getElementById('formAsesor').addEventListener('submit', async e => {
+// ── CREAR ASESOR ──
+document.getElementById('fNuevo').addEventListener('submit', async e => {
     e.preventDefault();
-    const nombre   = document.getElementById('nombre').value;
-    const email    = document.getElementById('email').value;
-    const telefono = document.getElementById('telefono').value;
-    const empresa  = document.getElementById('empresa').value;
-    const apikey   = document.getElementById('apikey').value;
-    const conL     = document.getElementById('check-landing').checked;
-    const conTP    = document.getElementById('check-teleprompter').checked;
-    const diasL    = document.getElementById('dias-landing-val').value;
-    const diasTP   = document.getElementById('dias-teleprompter-val').value;
+    const nombre   = document.getElementById('n-nombre').value;
+    const email    = document.getElementById('n-email').value;
+    const telefono = document.getElementById('n-tel').value;
+    const empresa  = document.getElementById('n-empresa').value;
+    const apikey   = document.getElementById('n-api').value;
+    const conL  = document.getElementById('mc-landing').checked;
+    const conTP = document.getElementById('mc-tp').checked;
+    const diasL  = document.getElementById('md-landing-val').value;
+    const diasTP = document.getElementById('md-tp-val').value;
 
-    if (!conL && !conTP) { alerta('alert','❌ Selecciona al menos un módulo','error'); return; }
-    if (conL  && !diasL)  { alerta('alert','❌ Selecciona días para Landing','error'); return; }
-    if (conTP && !diasTP) { alerta('alert','❌ Selecciona días para Teleprompter','error'); return; }
+    if (!conL && !conTP) { alerta('alert-nuevo','❌ Selecciona al menos un módulo','error'); return; }
+    if (conL  && !diasL)  { alerta('alert-nuevo','❌ Selecciona días para Landing','error'); return; }
+    if (conTP && !diasTP) { alerta('alert-nuevo','❌ Selecciona días para Teleprompter','error'); return; }
 
     try {
-        const r = await fetch(`${API_LANDING}/asesores/crear`, {
+        const r = await fetch(`${API}/asesores/crear`, {
             method:'POST', headers:{'Content-Type':'application/json'},
             body: JSON.stringify({ nombre, email, telefono, empresa, apikey,
                 con_landing: conL, dias_pagados: conL ? diasL : '0',
@@ -248,355 +327,307 @@ document.getElementById('formAsesor').addEventListener('submit', async e => {
         });
         const d = await r.json();
         if (d.success) {
-            alerta('alert','✅ Asesor creado correctamente','success');
-            document.getElementById('formAsesor').reset();
-            document.querySelectorAll('.producto-dias').forEach(x => x.classList.remove('visible'));
-            document.querySelectorAll('.producto-box').forEach(x => x.classList.remove('activo'));
-            cargarAsesores();
-        } else { alerta('alert','❌ ' + d.error,'error'); }
-    } catch { alerta('alert','❌ Error de conexión','error'); }
+            alerta('alert-nuevo','✅ Asesor creado correctamente','success');
+            document.getElementById('fNuevo').reset();
+            document.querySelectorAll('.modulo-dias').forEach(x => x.classList.remove('show'));
+            document.querySelectorAll('.modulo-box').forEach(x => x.classList.remove('on'));
+            init();
+        } else alerta('alert-nuevo','❌ ' + d.error,'error');
+    } catch { alerta('alert-nuevo','❌ Error de conexión','error'); }
 });
 
-async function cargarAsesores() {
-    try {
-        const [rL, rT] = await Promise.all([
-            fetch(`${API_LANDING}/asesores`),
-            fetch(`${API_TP}/teleprompter`).catch(() => null)
-        ]);
-        todosLosAsesores = await rL.json();
-        tpData = {};
-        if (rT && rT.ok) {
-            const list = await rT.json();
-            (Array.isArray(list) ? list : (list.data || [])).forEach(t => {
-                tpData[t.slug || t.url_slug] = t;
-            });
-        }
-        renderizarAsesores();
-        actualizarStats();
-    } catch {
-        document.getElementById('asesorContainer').innerHTML = '<div class="alert alert-error">Error cargando asesores</div>';
-    }
-}
-
-function renderizarAsesores() {
-    if (!todosLosAsesores.length) {
-        document.getElementById('asesorContainer').innerHTML = '<p style="color:#666;">No hay asesores registrados</p>';
-        return;
-    }
-    const ahora = new Date();
-    const html = todosLosAsesores.map(a => {
-        const slug = a.url_slug;
-        const tp   = tpData[slug] || null;
-
-        const expL      = new Date(a.fecha_expiracion);
-        const diasRestL = Math.ceil((expL - ahora) / 86400000);
-        const estadoL   = a.estado === 'revocado' ? 'revocado' : a.estado === 'suspendido' ? 'suspendido' : diasRestL > 0 ? 'activo' : 'expirado';
-        const tieneLanding = a.con_landing !== false;
-
-        let estadoTP = 'inactivo', diasRestTP = 0, expTPstr = '';
-        if (tp) {
-            const expTP = new Date(tp.fechaExpiracion || tp.fecha_expiracion);
-            diasRestTP  = Math.ceil((expTP - ahora) / 86400000);
-            estadoTP    = tp.activo === false ? 'revocado' : diasRestTP > 0 ? 'activo' : 'expirado';
-            expTPstr    = expTP.toLocaleDateString('es-CL');
-        }
-
-        return `
-        <div class="asesor-card">
-            <div class="asesor-header">
-                <div>
-                    <div class="asesor-nombre">${a.nombre}</div>
-                    <div class="asesor-email">${a.email} &bull; ${a.telefono}</div>
-                </div>
-                <div class="asesor-acciones-top">
-                    <button class="btn-s btn-edit" onclick="verActividad('${slug}','${a.nombre}')">📊 Actividad</button>
-                    <button class="btn-s btn-edit" onclick="editarAsesor('${slug}')">✏️ Editar</button>
-                    <button class="btn-s btn-del"  onclick="eliminarAsesor('${slug}')">🗑️ Eliminar</button>
-                </div>
-            </div>
-            <div class="modulos">
-                ${tieneLanding ? `
-                <div class="modulo-row landing">
-                    <div class="modulo-icon">🌐</div>
-                    <div class="modulo-info">
-                        <div class="modulo-nombre">Landing · Cotizador Isapre</div>
-                        <div class="modulo-fecha">Vence: ${expL.toLocaleDateString('es-CL')} &bull;
-                            <span style="color:${diasRestL < 5 ? '#dc3545':'#555'}">${diasRestL > 0 ? diasRestL+' días restantes' : 'Expirado'}</span>
-                        </div>
-                        <span class="status ${estadoL}">${estadoL.charAt(0).toUpperCase()+estadoL.slice(1)}</span>
-                    </div>
-                    <div class="modulo-btns">
-                        <button class="btn-s btn-copiar" onclick="copiarURL('${URL_LANDING}/?asesor=${slug}')">📋 Copiar link</button>
-                        <button class="btn-s btn-renovar" onclick="renovarLanding('${slug}')">🔄 Renovar</button>
-                        <button class="btn-s btn-revocar" onclick="revocarAsesor('${slug}')">🚫 Revocar</button>
-                    </div>
-                </div>` : `
-                <div class="modulo-row inactivo">
-                    <div class="modulo-icon">🌐</div>
-                    <div class="modulo-info"><div class="modulo-nombre">Landing · No activado</div></div>
-                </div>`}
-
-                ${tp ? `
-                <div class="modulo-row teleprompter">
-                    <div class="modulo-icon">🎬</div>
-                    <div class="modulo-info">
-                        <div class="modulo-nombre">Teleprompter</div>
-                        <div class="modulo-fecha">Vence: ${expTPstr} &bull;
-                            <span style="color:${diasRestTP < 5 ? '#dc3545':'#555'}">${diasRestTP > 0 ? diasRestTP+' días restantes' : 'Expirado'}</span>
-                        </div>
-                        <span class="status ${estadoTP}">${estadoTP.charAt(0).toUpperCase()+estadoTP.slice(1)}</span>
-                    </div>
-                    <div class="modulo-btns">
-                        <button class="btn-s btn-copiar" onclick="copiarURL('${URL_TP}/${slug}')">📋 Copiar link</button>
-                        <button class="btn-s btn-renovar" onclick="renovarTeleprompter('${slug}')">🔄 Renovar</button>
-                        <button class="btn-s btn-revocar" onclick="revocarTeleprompter('${slug}')">🚫 Revocar</button>
-                    </div>
-                </div>` : `
-                <div class="modulo-row inactivo">
-                    <div class="modulo-icon">🎬</div>
-                    <div class="modulo-info"><div class="modulo-nombre">Teleprompter · No activado</div></div>
-                    <div class="modulo-btns">
-                        <button class="btn-s btn-tp" onclick="activarTPRapido('${slug}','${a.nombre}')">➕ Activar</button>
-                    </div>
-                </div>`}
-            </div>
-        </div>`;
-    }).join('');
-
-    document.getElementById('asesorContainer').innerHTML = `<div class="asesores-list">${html}</div>`;
-}
-
-function buscarAsesor() {
-    const q = document.getElementById('buscador').value.toLowerCase();
-    const cont = document.getElementById('resultados-busqueda');
-    if (q.length < 2) { cont.innerHTML = ''; document.getElementById('form-agregar-mod').style.display='none'; return; }
-    const res = todosLosAsesores.filter(a => a.nombre.toLowerCase().includes(q) || a.email.toLowerCase().includes(q));
-    if (!res.length) { cont.innerHTML = '<p style="color:#999;font-size:13px;margin-top:8px;">Sin resultados</p>'; return; }
+// ── BUSCADOR PARA TP ──
+function buscarParaTP() {
+    const q = document.getElementById('tp-buscar').value.toLowerCase();
+    const cont = document.getElementById('tp-resultados');
+    if (q.length < 2) { cont.innerHTML = ''; document.getElementById('tp-form').style.display='none'; return; }
+    const res = asesores.filter(a => a.nombre.toLowerCase().includes(q) || a.email.toLowerCase().includes(q));
+    if (!res.length) { cont.innerHTML = '<p style="color:#999;font-size:12px;margin-top:6px;">Sin resultados</p>'; return; }
     cont.innerHTML = res.map(a => `
-        <div class="search-result" id="sr-${a.url_slug}" onclick="seleccionarAsesor('${a.url_slug}')">
-            <strong>${a.nombre}</strong><br><small>${a.email}</small>
+        <div class="search-result" id="tpr-${a.url_slug}" onclick="selTP('${a.url_slug}')">
+            <strong>${a.nombre}</strong><br>
+            <small>${a.email} · ${a.telefono}</small>
         </div>`).join('');
 }
 
-function seleccionarAsesor(slug) {
-    slugSeleccionado   = slug;
-    asesorSeleccionado = todosLosAsesores.find(a => a.url_slug === slug);
-    document.querySelectorAll('.search-result').forEach(r => r.classList.remove('selected'));
-    document.getElementById('sr-' + slug).classList.add('selected');
-    document.getElementById('mod-nombre').textContent = asesorSeleccionado.nombre;
-    document.getElementById('mod-email').textContent  = asesorSeleccionado.email;
-    document.getElementById('mod-tel').textContent    = asesorSeleccionado.telefono;
-    document.getElementById('form-agregar-mod').style.display = 'block';
-    document.getElementById('mod-tipo').value = '';
-    document.getElementById('dias-mod-wrap').style.display = 'none';
+function selTP(slug) {
+    tpSlug   = slug;
+    tpAsesor = asesores.find(a => a.url_slug === slug);
+    document.querySelectorAll('.search-result').forEach(r => r.classList.remove('sel'));
+    document.getElementById('tpr-' + slug)?.classList.add('sel');
+    document.getElementById('tp-nombre').textContent = tpAsesor.nombre;
+    document.getElementById('tp-email').textContent  = tpAsesor.email;
+    document.getElementById('tp-tel').textContent    = tpAsesor.telefono;
+    document.getElementById('tp-dias').value = '';
+    document.getElementById('tp-form').style.display = 'block';
 }
 
-async function activarModuloExistente() {
-    if (!slugSeleccionado) return;
-    const tipo = document.getElementById('mod-tipo').value;
-    const dias = document.getElementById('dias-mod').value;
-    if (!tipo) { alerta('alert2','❌ Selecciona un módulo','error'); return; }
-    if (!dias) { alerta('alert2','❌ Selecciona los días','error'); return; }
-    if (tipo === 'teleprompter') await activarTP(slugSeleccionado, asesorSeleccionado.nombre, parseInt(dias), 'alert2');
+async function activarTPExistente() {
+    if (!tpSlug) return;
+    const dias = document.getElementById('tp-dias').value;
+    if (!dias) { alerta('alert-tp','❌ Selecciona los días','error'); return; }
+    await activarTP(tpSlug, tpAsesor.nombre, parseInt(dias), 'alert-tp');
 }
 
-async function activarTPRapido(slug, nombre) {
-    const dias = prompt(`¿Cuántos días de Teleprompter para ${nombre}?`);
-    if (!dias || isNaN(dias)) return;
-    await activarTP(slug, nombre, parseInt(dias), null);
-}
-
+// ── ACTIVAR TP (reutilizable) ──
 async function activarTP(slug, nombre, dias, alertId) {
     try {
-        // Primero intentar renovar (por si ya existe en teleprompter-backend)
-        const rRenovar = await fetch(`${API_TP}/teleprompter/${slug}/renovar`, {
+        // Intentar renovar primero (por si ya existe)
+        const r1 = await fetch(`${API_TP}/teleprompter/${slug}/renovar`, {
             method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ dias: parseInt(dias) })
+            body: JSON.stringify({ dias })
         });
-        const dRenovar = await rRenovar.json();
+        const d1 = await r1.json();
 
-        // Si no existe, crear nuevo
-        if (!dRenovar.success && !dRenovar.ok) {
-            const rCrear = await fetch(`${API_TP}/teleprompter`, {
+        if (!d1.success && !d1.ok) {
+            // No existe → crear nuevo
+            const r2 = await fetch(`${API_TP}/teleprompter`, {
                 method:'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({ nombre, slug, dias: parseInt(dias) })
+                body: JSON.stringify({ nombre, slug, dias })
             });
-            const dCrear = await rCrear.json();
-            if (!dCrear.creado && !dCrear.success) {
+            const d2 = await r2.json();
+            if (!d2.creado && !d2.success) {
                 const msg = '❌ Error activando teleprompter';
                 if (alertId) alerta(alertId, msg, 'error'); else alert(msg);
                 return;
             }
         }
 
-        // Marcar con_teleprompter: true en landing
-        const asesor = todosLosAsesores.find(a => a.url_slug === slug);
-        if (asesor) {
-            await fetch(`${API_LANDING}/asesores/${slug}/editar`, {
-                method:'PUT', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({
-                    nombre: asesor.nombre,
-                    email: asesor.email,
-                    telefono: asesor.telefono,
-                    empresa: asesor.empresa,
-                    apikey: asesor.apikey || '',
-                    con_teleprompter: true
-                })
-            });
+        // Limpiar formulario tp si viene de esa pestaña
+        if (alertId === 'alert-tp') {
+            alerta('alert-tp', `✅ Teleprompter activado · <a href="${URL_TP}/${slug}" target="_blank">Ver link</a>`, 'success');
+            document.getElementById('tp-buscar').value = '';
+            document.getElementById('tp-resultados').innerHTML = '';
+            document.getElementById('tp-form').style.display = 'none';
+            tpSlug = null; tpAsesor = null;
         }
 
-        const urlTp = `${URL_TP}/${slug}`;
-        if (alertId) {
-            alerta(alertId, `✅ Teleprompter activado<br>🔗 <a href="${urlTp}" target="_blank">${urlTp}</a>`, 'success');
-            document.getElementById('buscador').value = '';
-            document.getElementById('resultados-busqueda').innerHTML = '';
-            document.getElementById('form-agregar-mod').style.display = 'none';
-        } else {
-            await navigator.clipboard.writeText(urlTp).catch(()=>{});
-            alert(`✅ Teleprompter activado para ${nombre}\n\n🔗 ${urlTp}\n\n(Link copiado al portapapeles)`);
-        }
-        cargarAsesores();
+        init();
     } catch {
         const msg = '❌ Error de conexión';
         if (alertId) alerta(alertId, msg, 'error'); else alert(msg);
     }
 }
 
-async function renovarLanding(slug) {
-    const dias = prompt('¿Cuántos días de renovación para Landing?', '30');
-    if (!dias) return;
-    try {
-        const r = await fetch(`${API_LANDING}/asesores/${slug}/renovar`, {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ dias: parseInt(dias) })
-        });
-        const d = await r.json();
-        if (d.success) { alert('✅ Landing renovada por ' + dias + ' días'); cargarAsesores(); }
-        else alert('❌ Error: ' + d.error);
-    } catch { alert('❌ Error de conexión'); }
+// ── FILTRAR LISTA ──
+function filtrarLista(q) {
+    filtro = q.toLowerCase();
+    render();
 }
 
-async function renovarTeleprompter(slug) {
-    const dias = prompt('¿Cuántos días de renovación para Teleprompter?', '30');
-    if (!dias) return;
-    try {
-        const r = await fetch(`${API_TP}/teleprompter/${slug}/renovar`, {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ dias: parseInt(dias) })
-        });
-        const d = await r.json();
-        if (d.success || d.ok) { alert('✅ Teleprompter renovado por ' + dias + ' días'); cargarAsesores(); }
-        else {
-            const tp = tpData[slug];
-            const r2 = await fetch(`${API_TP}/teleprompter`, {
-                method:'POST', headers:{'Content-Type':'application/json'},
-                body: JSON.stringify({ nombre: tp?.nombre || slug, slug, dias: parseInt(dias) })
-            });
-            const d2 = await r2.json();
-            if (d2.creado || d2.success || d2.error?.includes('duplicate')) { alert('✅ Teleprompter renovado'); cargarAsesores(); }
-            else alert('❌ Error renovando teleprompter');
+// ── RENDER ──
+function render() {
+    const ahora = new Date();
+    const lista = filtro
+        ? asesores.filter(a => a.nombre.toLowerCase().includes(filtro) || a.email.toLowerCase().includes(filtro))
+        : asesores;
+
+    if (!lista.length) {
+        document.getElementById('lista').innerHTML = '<p style="color:#888;padding:20px;">No hay asesores</p>';
+        return;
+    }
+
+    document.getElementById('lista').innerHTML = lista.map(a => {
+        const slug = a.url_slug;
+        const tp   = tpMap[slug];
+
+        // LANDING
+        const expL      = new Date(a.fecha_expiracion);
+        const diasL     = Math.ceil((expL - ahora) / 86400000);
+        const stL       = a.estado === 'revocado' ? 'revocado' : a.estado === 'suspendido' ? 'suspendido' : diasL > 0 ? 'activo' : 'expirado';
+        const tieneLand = a.con_landing !== false;
+
+        // TELEPROMPTER
+        let stTP = 'inactivo', diasTP = 0, expTPstr = '';
+        if (tp) {
+            const expTP = new Date(tp.fechaExpiracion);
+            diasTP   = Math.ceil((expTP - ahora) / 86400000);
+            stTP     = tp.activo === false ? 'revocado' : diasTP > 0 ? 'activo' : 'expirado';
+            expTPstr = expTP.toLocaleDateString('es-CL');
         }
-    } catch { alert('❌ Error de conexión'); }
+
+        const landHTML = tieneLand ? `
+        <div class="mod-row land">
+            <div class="mod-icon">🌐</div>
+            <div class="mod-info">
+                <div class="mod-name">Landing · Cotizador Isapre</div>
+                <div class="mod-date">Vence: ${expL.toLocaleDateString('es-CL')} · <span style="color:${diasL<5?'#dc3545':'#555'}">${diasL>0?diasL+' días':'Expirado'}</span></div>
+                <span class="status ${stL}">${cap(stL)}</span>
+            </div>
+            <div class="mod-btns">
+                <button class="bs bs-copy"  onclick="copiar('${URL_L}/?asesor=${slug}')">📋 Link</button>
+                <button class="bs bs-renew" onclick="renovarLanding('${slug}')">🔄 Renovar</button>
+                <button class="bs bs-rev"   onclick="revocarLanding('${slug}')">🚫 Revocar</button>
+                <button class="bs bs-del"   onclick="eliminarLanding('${slug}')">🗑️ Eliminar</button>
+            </div>
+        </div>` : `
+        <div class="mod-row off">
+            <div class="mod-icon">🌐</div>
+            <div class="mod-info"><div class="mod-name">Landing · No activada</div></div>
+        </div>`;
+
+        const tpHTML = tp ? `
+        <div class="mod-row tele">
+            <div class="mod-icon">🎬</div>
+            <div class="mod-info">
+                <div class="mod-name">Teleprompter</div>
+                <div class="mod-date">Vence: ${expTPstr} · <span style="color:${diasTP<5?'#dc3545':'#555'}">${diasTP>0?diasTP+' días':'Expirado'}</span></div>
+                <span class="status ${stTP}">${cap(stTP)}</span>
+            </div>
+            <div class="mod-btns">
+                <button class="bs bs-copy"  onclick="copiar('${URL_TP}/${slug}')">📋 Link</button>
+                <button class="bs bs-renew" onclick="renovarTP('${slug}')">🔄 Renovar</button>
+                <button class="bs bs-rev"   onclick="revocarTP('${slug}')">🚫 Revocar</button>
+                <button class="bs bs-del"   onclick="eliminarTP('${slug}')">🗑️ Eliminar</button>
+            </div>
+        </div>` : `
+        <div class="mod-row off">
+            <div class="mod-icon">🎬</div>
+            <div class="mod-info"><div class="mod-name">Teleprompter · No activado</div></div>
+            <div class="mod-btns">
+                <button class="bs bs-add" onclick="activarTPRapido('${slug}','${a.nombre}')">➕ Activar</button>
+            </div>
+        </div>`;
+
+        return `
+        <div class="asesor-card">
+            <div class="asesor-head">
+                <div class="asesor-info">
+                    <strong>${a.nombre}</strong>
+                    <small>${a.email} · ${a.telefono}</small>
+                </div>
+                <div class="asesor-top-btns">
+                    <button class="bs bs-edit" onclick="abrirActividad('${slug}','${a.nombre}')">📊</button>
+                    <button class="bs bs-edit" onclick="abrirEditar('${slug}')">✏️</button>
+                </div>
+            </div>
+            <div class="modulos-wrap">${landHTML}${tpHTML}</div>
+        </div>`;
+    }).join('');
 }
 
-async function revocarAsesor(slug) {
-    if (!confirm('¿Revocar acceso a Landing?')) return;
-    const razon = prompt('Razón (opcional):');
+// ── ACCIONES LANDING ──
+async function renovarLanding(slug) {
+    const dias = prompt('¿Cuántos días de renovación para Landing?','30');
+    if (!dias) return;
+    const r = await fetch(`${API}/asesores/${slug}/renovar`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ dias: parseInt(dias) }) });
+    const d = await r.json();
+    if (d.success) init(); else alert('❌ Error: ' + d.error);
+}
+
+async function revocarLanding(slug) {
+    if (!confirm('¿Revocar Landing?')) return;
+    const razon = prompt('Razón (opcional):') || 'Sin especificar';
+    const r = await fetch(`${API}/asesores/${slug}/revocar`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ razon }) });
+    const d = await r.json();
+    if (d.success) init(); else alert('❌ Error');
+}
+
+async function eliminarLanding(slug) {
+    if (!confirm('¿Eliminar Landing de este asesor? Solo se elimina el registro de landing.')) return;
+    const r = await fetch(`${API}/asesores/${slug}/eliminar`, { method:'DELETE' });
+    const d = await r.json();
+    if (d.success) init(); else alert('❌ Error: ' + d.error);
+}
+
+// ── ACCIONES TELEPROMPTER ──
+async function activarTPRapido(slug, nombre) {
+    const dias = prompt(`¿Cuántos días de Teleprompter para ${nombre}?`);
+    if (!dias || isNaN(dias)) return;
+    await activarTP(slug, nombre, parseInt(dias), null);
+}
+
+async function renovarTP(slug) {
+    const dias = prompt('¿Cuántos días de renovación para Teleprompter?','30');
+    if (!dias) return;
+    const r = await fetch(`${API_TP}/teleprompter/${slug}/renovar`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ dias: parseInt(dias) }) });
+    const d = await r.json();
+    if (d.success || d.ok) init(); else alert('❌ Error renovando');
+}
+
+async function revocarTP(slug) {
+    if (!confirm('¿Revocar Teleprompter?')) return;
+    const r = await fetch(`${API_TP}/teleprompter/${slug}/revocar`, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({}) });
+    const d = await r.json();
+    if (d.success || d.ok) init(); else alert('❌ Error revocando');
+}
+
+async function eliminarTP(slug) {
+    if (!confirm('¿Eliminar Teleprompter de este asesor?')) return;
+    const r = await fetch(`${API_TP}/teleprompter/${slug}`, { method:'DELETE' });
+    const d = await r.json();
+    if (d.success) init(); else alert('❌ Error eliminando');
+}
+
+// ── EDITAR ──
+function abrirEditar(slug) {
+    const a = asesores.find(x => x.url_slug === slug);
+    if (!a) return;
+    editSlug = slug;
+    document.getElementById('e-nombre').value  = a.nombre || '';
+    document.getElementById('e-email').value   = a.email || '';
+    document.getElementById('e-tel').value     = a.telefono || '';
+    document.getElementById('e-empresa').value = a.empresa || '';
+    document.getElementById('e-api').value     = a.apikey || '';
+    document.getElementById('modalEditar').classList.add('show');
+}
+
+async function guardarEdicion() {
+    const n   = document.getElementById('e-nombre').value;
+    const e   = document.getElementById('e-email').value;
+    const t   = document.getElementById('e-tel').value;
+    const emp = document.getElementById('e-empresa').value;
+    const api = document.getElementById('e-api').value;
+    if (!n || !e || !t || !emp) { alert('Completa los campos requeridos'); return; }
+    const r = await fetch(`${API}/asesores/${editSlug}/editar`, {
+        method:'PUT', headers:{'Content-Type':'application/json'},
+        body: JSON.stringify({ nombre:n, email:e, telefono:t, empresa:emp, apikey:api })
+    });
+    const d = await r.json();
+    if (d.success) { cerrarModal('modalEditar'); init(); }
+    else alert('❌ ' + d.error);
+}
+
+// ── ACTIVIDAD ──
+async function abrirActividad(slug, nombre) {
     try {
-        const r = await fetch(`${API_LANDING}/asesores/${slug}/revocar`, {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ razon: razon || 'Sin especificar' })
-        });
-        const d = await r.json();
-        if (d.success) { alert('✅ Landing revocada'); cargarAsesores(); }
-        else alert('❌ Error');
-    } catch { alert('❌ Error de conexión'); }
-}
-
-async function revocarTeleprompter(slug) {
-    if (!confirm('¿Revocar acceso a Teleprompter?')) return;
-    try {
-        const r = await fetch(`${API_TP}/teleprompter/${slug}/revocar`, {
-            method:'POST', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({})
-        });
-        const d = await r.json();
-        if (d.success || d.ok) { alert('✅ Teleprompter revocado'); cargarAsesores(); }
-        else alert('❌ No se pudo revocar');
-    } catch { alert('❌ Error de conexión'); }
-}
-
-async function copiarURL(url) {
-    try { await navigator.clipboard.writeText(url); alert('✅ Copiado:\n' + url); }
-    catch { alert('Copia manualmente:\n' + url); }
-}
-
-async function editarAsesor(slug) {
-    const a = todosLosAsesores.find(x => x.url_slug === slug);
-    const n   = prompt('Nombre:', a?.nombre || '');
-    const e   = prompt('Email:', a?.email || '');
-    const t   = prompt('Teléfono:', a?.telefono || '');
-    const emp = prompt('Empresa:', a?.empresa || '');
-    const api = prompt('API Key CallMeBot:', a?.apikey || '');
-    if (!n || !e || !t || !emp) { alert('Campos requeridos'); return; }
-    try {
-        const r = await fetch(`${API_LANDING}/asesores/${slug}/editar`, {
-            method:'PUT', headers:{'Content-Type':'application/json'},
-            body: JSON.stringify({ nombre:n, email:e, telefono:t, empresa:emp, apikey:api })
-        });
-        const d = await r.json();
-        if (d.success) { alert('✅ Actualizado'); cargarAsesores(); }
-        else alert('❌ ' + d.error);
-    } catch { alert('❌ Error de conexión'); }
-}
-
-async function eliminarAsesor(slug) {
-    if (!confirm('¿Eliminar asesor? No se puede deshacer.')) return;
-    try {
-        const r = await fetch(`${API_LANDING}/asesores/${slug}/eliminar`, { method:'DELETE' });
-        const d = await r.json();
-        if (d.success) { alert('✅ Eliminado'); cargarAsesores(); }
-        else alert('❌ ' + d.error);
-    } catch { alert('❌ Error de conexión'); }
-}
-
-async function verActividad(slug, nombre) {
-    try {
-        const r = await fetch(`${API_LANDING}/asesores/${slug}/actividad`);
-        const actividad = await r.json();
-        let html = '<div style="max-height:400px;overflow-y:auto;">';
-        if (!actividad.length) html += '<p style="color:#666;">Sin actividad registrada</p>';
-        else actividad.forEach(reg => {
-            const fecha = new Date(reg.fecha).toLocaleString('es-CL');
-            html += `<div style="padding:10px;border-bottom:1px solid #eee;font-size:12px;">
-                <strong>${reg.tipo==='cotizacion'?'💰':'👤'} ${reg.cliente_nombre||'Anónimo'}</strong><br>
-                ${reg.tipo==='cotizacion'?`Planes: ${reg.plan1||'-'} / ${reg.plan2||'-'}`:'Acceso a landing'}<br>
-                <small style="color:#999;">${fecha}</small></div>`;
-        });
-        html += '</div>';
-        document.getElementById('asesorNombre').textContent = nombre;
-        document.getElementById('actividadLista').innerHTML  = html;
-        document.getElementById('modalActividad').classList.add('visible');
+        const r = await fetch(`${API}/asesores/${slug}/actividad`);
+        const act = await r.json();
+        document.getElementById('act-nombre').textContent = nombre;
+        document.getElementById('act-lista').innerHTML = act.length
+            ? act.map(x => `<div class="act-item">
+                <strong>${x.tipo==='cotizacion'?'💰':'👤'} ${x.cliente_nombre||'Anónimo'}</strong><br>
+                ${x.tipo==='cotizacion'?`Planes: ${x.plan1||'-'} / ${x.plan2||'-'}`:'Acceso a landing'}<br>
+                <small style="color:#aaa">${new Date(x.fecha).toLocaleString('es-CL')}</small>
+              </div>`).join('')
+            : '<p style="color:#888;font-size:13px;">Sin actividad registrada</p>';
+        document.getElementById('modalActividad').classList.add('show');
     } catch { alert('Error cargando actividad'); }
 }
 
-function cerrarModal() { document.getElementById('modalActividad').classList.remove('visible'); }
-
-function actualizarStats() {
-    const ahora = new Date();
-    const activos   = todosLosAsesores.filter(a => a.estado==='activo' && ahora <= new Date(a.fecha_expiracion)).length;
-    const porVencer = todosLosAsesores.filter(a => { const d=Math.ceil((new Date(a.fecha_expiracion)-ahora)/86400000); return d>0&&d<=5; }).length;
-    document.getElementById('st-activos').textContent = activos;
-    document.getElementById('st-vencer').textContent  = porVencer;
-    document.getElementById('st-tp').textContent      = Object.keys(tpData).length;
-    document.getElementById('st-total').textContent   = todosLosAsesores.length;
-}
-
+// ── UTILS ──
+function cerrarModal(id) { document.getElementById(id).classList.remove('show'); }
+function copiar(url) { navigator.clipboard.writeText(url).then(() => alert('✅ Copiado:\n' + url)).catch(() => alert('Copia manualmente:\n' + url)); }
+function cap(s) { return s.charAt(0).toUpperCase() + s.slice(1); }
 function alerta(id, msg, tipo) {
     const el = document.getElementById(id);
     el.innerHTML = `<div class="alert alert-${tipo}">${msg}</div>`;
-    setTimeout(() => el.innerHTML = '', 6000);
+    setTimeout(() => el.innerHTML = '', 5000);
 }
+
+function stats() {
+    const ahora = new Date();
+    const actL  = asesores.filter(a => a.estado==='activo' && new Date(a.fecha_expiracion) > ahora).length;
+    const actTP = Object.values(tpMap).filter(t => t.activo && new Date(t.fechaExpiracion) > ahora).length;
+    const venc  = asesores.filter(a => { const d=Math.ceil((new Date(a.fecha_expiracion)-ahora)/86400000); return d>0&&d<=5; }).length;
+    document.getElementById('st-total').textContent   = asesores.length;
+    document.getElementById('st-activos').textContent = actL;
+    document.getElementById('st-tp').textContent      = actTP;
+    document.getElementById('st-vencer').textContent  = venc;
+}
+
+// Cerrar modales al click fuera
+document.querySelectorAll('.modal').forEach(m => m.addEventListener('click', e => { if(e.target===m) m.classList.remove('show'); }));
 </script>
 </body>
 </html>
