@@ -286,7 +286,7 @@ function renderizarAsesores() {
     const ahora = new Date();
     const html = todosLosAsesores.map(a => {
         const slug = a.url_slug;
-        const tp   = a.con_teleprompter ? tpData[slug] : null;
+        const tp   = tpData[slug] || null;
 
         const expL      = new Date(a.fecha_expiracion);
         const diasRestL = Math.ceil((expL - ahora) / 86400000);
