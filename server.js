@@ -200,6 +200,11 @@ w: 'majority'
     db = global.client.db('colmena');
     asesorCollection = db.collection('asesores');
     actividadCollection = db.collection('actividad');
+    viproteinCollection = db.collection('viprotein_vendedores');
+viproteinPedidosCollection = db.collection('viprotein_pedidos');
+await viproteinCollection.createIndex({ url_slug: 1 });
+await viproteinPedidosCollection.createIndex({ url_slug: 1 });
+await viproteinPedidosCollection.createIndex({ fecha: -1 });
     
     // Crear índices
     await asesorCollection.createIndex({ url_slug: 1 });
