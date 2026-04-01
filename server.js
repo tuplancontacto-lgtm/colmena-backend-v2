@@ -855,7 +855,6 @@ app.post('/api/viprotein/crear', async (req, res) => {
     res.status(500).json({ error: 'Error creando vendedor' });
   }
 });
-
 // ── OBTENER TODOS LOS VENDEDORES ─────────────────────────────
 app.get('/api/viprotein', async (req, res) => {
   try {
@@ -865,15 +864,24 @@ app.get('/api/viprotein', async (req, res) => {
     res.status(500).json({ error: 'Error obteniendo vendedores' });
   }
 });
-  await generarYEnviarInforme(tipo);
-  res.json({ success: true, message: `Informe ${tipo} generado y enviado` });
-});
-// ── VALIDAR VENDEDOR (la app lo llama al cargar) ─────────────
+
+// ── GENERAR INFORMES ─────────────────────────────────────────
 app.get('/api/viprotein/informes/generar/:tipo', async (req, res) => {
   const { tipo } = req.params;
+
   if (!['diario', 'semanal', 'mensual'].includes(tipo)) {
     return res.status(400).json({ error: 'Tipo debe ser diario, semanal o mensual' });
   }
+
+  try {
+    await generarYEnviarInforme(tipo); // ✅ ahora sí está dentro
+    res.json({ success: true, message: `Informe ${tipo} generado y enviado` });
+  } catch (error) {
+    res.status(500).json({ error: 'Error al generar el informe' });
+  }
+});
+
+// ── VALIDAR VENDEDOR ─────────────────────────────────────────
 app.get('/api/viprotein/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
@@ -882,6 +890,12 @@ app.get('/api/viprotein/:slug', async (req, res) => {
     if (!vendedor) {
       return res.json({ valid: false, error: 'Acceso no encontrado' });
     }
+
+    res.json({ valid: true, vendedor });
+  } catch (error) {
+    res.status(500).json({ error: 'Error validando vendedor' });
+  }
+});
 
     const ahora = new Date();
 
