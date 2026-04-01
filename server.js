@@ -787,6 +787,215 @@ app.delete('/api/asesores/:slug/eliminar', async (req, res) => {
 // ============================================
 // RUTA DINÁMICA PARA ASESORES (VALIDADA)
 // ============================================
+// ============================================================
+// RUTAS VIPROTEIN — Pega este bloque en tu server.js de Colmena
+// ANTES de la línea: app.get('/:slug', (req, res) => {
+// ============================================================
+
+// Colección ViProtein (agregar junto a las otras colecciones al inicio)
+// let viproteinCollection;
+// Y dentro de connectDB() agregar:
+// viproteinCollection = db.collection('viprotein_vendedores');
+// await viproteinCollection.createIndex({ url_slug: 1 });
+
+// ── CREAR VENDEDOR VIPROTEIN ─────────────────────────────────
+app.post('/api/viprotein/crear', async (req, res) => {
+  try {
+    const { nombre, empresa, email, telefono, dias_pagados, plan } = req.body;
+
+    if (!nombre || !dias_pagados) {
+      return res.status(400).json({ error: 'Nombre y días son requeridos' });
+    }
+
+    // Generar slug único basado en el nombre
+    let url_slug = nombre.toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, '-')
+      .replace(/[^a-z0-9-]/g, '');
+
+    let contador = 1;
+    const slug_original = url_slug;
+    while (await viproteinCollection.findOne({ url_slug })) {
+      url_slug = `${slug_original}-${contador}`;
+      contador++;
+    }
+
+    const ahora = new Date();
+    const fecha_expiracion = new Date(ahora);
+    fecha_expiracion.setDate(fecha_expiracion.getDate() + parseInt(dias_pagados));
+
+    const nuevoVendedor = {
+      nombre,
+      empresa: empresa || '',
+      email: email || '',
+      telefono: telefono || '',
+      url_slug,
+      plan: plan || 'demo',
+      estado: 'activo',
+      fecha_inicio: ahora,
+      fecha_expiracion,
+      dias_pagados: parseInt(dias_pagados),
+      accesos_total: 0,
+      ultimo_acceso: null,
+      renovaciones: []
+    };
+
+    const resultado = await viproteinCollection.insertOne(nuevoVendedor);
+
+    res.json({
+      success: true,
+      vendedor: {
+        ...nuevoVendedor,
+        _id: resultado.insertedId,
+        url: `https://viprotein-vendedor.vercel.app/${url_slug}`
+      }
+    });
+  } catch (error) {
+    console.error('Error creando vendedor ViProtein:', error);
+    res.status(500).json({ error: 'Error creando vendedor' });
+  }
+});
+
+// ── OBTENER TODOS LOS VENDEDORES ─────────────────────────────
+app.get('/api/viprotein', async (req, res) => {
+  try {
+    const vendedores = await viproteinCollection.find({}).sort({ fecha_inicio: -1 }).toArray();
+    res.json(vendedores);
+  } catch (error) {
+    res.status(500).json({ error: 'Error obteniendo vendedores' });
+  }
+});
+
+// ── VALIDAR VENDEDOR (la app lo llama al cargar) ─────────────
+app.get('/api/viprotein/:slug', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const vendedor = await viproteinCollection.findOne({ url_slug: slug });
+
+    if (!vendedor) {
+      return res.json({ valid: false, error: 'Acceso no encontrado' });
+    }
+
+    const ahora = new Date();
+
+    if (vendedor.estado !== 'activo') {
+      return res.json({ valid: false, error: `Acceso ${vendedor.estado}` });
+    }
+
+    if (ahora > vendedor.fecha_expiracion) {
+      return res.json({ valid: false, error: 'Acceso expirado' });
+    }
+
+    const dias_restantes = Math.ceil((vendedor.fecha_expiracion - ahora) / (1000 * 60 * 60 * 24));
+
+    res.json({
+      valid: true,
+      dias_restantes,
+      vendedor: {
+        nombre: vendedor.nombre,
+        empresa: vendedor.empresa,
+        plan: vendedor.plan
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ valid: false, error: 'Error validando acceso' });
+  }
+});
+
+// ── REGISTRAR ACCESO ─────────────────────────────────────────
+app.post('/api/viprotein/:slug/registrar-acceso', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    await viproteinCollection.updateOne(
+      { url_slug: slug },
+      { $set: { ultimo_acceso: new Date() }, $inc: { accesos_total: 1 } }
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Error registrando acceso' });
+  }
+});
+
+// ── RENOVAR ──────────────────────────────────────────────────
+app.post('/api/viprotein/:slug/renovar', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { dias } = req.body;
+
+    const vendedor = await viproteinCollection.findOne({ url_slug: slug });
+    if (!vendedor) return res.status(404).json({ error: 'No encontrado' });
+
+    // Si ya venció, renovar desde hoy; si está vigente, sumar desde la fecha de vencimiento
+    const base = new Date(vendedor.fecha_expiracion) > new Date()
+      ? new Date(vendedor.fecha_expiracion)
+      : new Date();
+    const nueva_fecha = new Date(base);
+    nueva_fecha.setDate(nueva_fecha.getDate() + parseInt(dias));
+
+    await viproteinCollection.updateOne(
+      { url_slug: slug },
+      {
+        $set: { fecha_expiracion: nueva_fecha, estado: 'activo' },
+        $push: { renovaciones: { fecha: new Date(), dias: parseInt(dias), nueva_expiracion: nueva_fecha } }
+      }
+    );
+
+    res.json({ success: true, nueva_expiracion: nueva_fecha });
+  } catch (error) {
+    res.status(500).json({ error: 'Error renovando' });
+  }
+});
+
+// ── EDITAR ───────────────────────────────────────────────────
+app.put('/api/viprotein/:slug/editar', async (req, res) => {
+  try {
+    const { slug } = req.params;
+    const { nombre, email, telefono, empresa } = req.body;
+    await viproteinCollection.updateOne(
+      { url_slug: slug },
+      { $set: { nombre, email, telefono, empresa } }
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Error editando' });
+  }
+});
+
+// ── SUSPENDER ────────────────────────────────────────────────
+app.post('/api/viprotein/:slug/suspender', async (req, res) => {
+  try {
+    await viproteinCollection.updateOne({ url_slug: req.params.slug }, { $set: { estado: 'suspendido' } });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Error suspendiendo' });
+  }
+});
+
+// ── ACTIVAR ──────────────────────────────────────────────────
+app.post('/api/viprotein/:slug/activar', async (req, res) => {
+  try {
+    await viproteinCollection.updateOne({ url_slug: req.params.slug }, { $set: { estado: 'activo' } });
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Error activando' });
+  }
+});
+
+// ── REVOCAR ──────────────────────────────────────────────────
+app.post('/api/viprotein/:slug/revocar', async (req, res) => {
+  try {
+    const { razon } = req.body;
+    await viproteinCollection.updateOne(
+      { url_slug: req.params.slug },
+      { $set: { estado: 'revocado', fecha_cancelacion: new Date(), razon_cancelacion: razon || 'Revocado' } }
+    );
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Error revocando' });
+  }
+});
+
+// ── FIN RUTAS VIPROTEIN ──────────────────────────────────────
 
 app.get('/:slug', async (req, res) => {
   const { slug } = req.params;
