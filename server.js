@@ -23,6 +23,8 @@ console.log('🧪 WHATSAPP ENV CHECK', {
 let db;
 let asesorCollection;
 let actividadCollection;
+let viproteinCollection;
+let viproteinPedidosCollection;
 
 async function validarAsesorActivo(slug) {
   const asesor = await asesorCollection.findOne({ url_slug: slug });
