@@ -867,6 +867,14 @@ app.get('/api/viprotein', async (req, res) => {
 });
 
 // ── VALIDAR VENDEDOR (la app lo llama al cargar) ─────────────
+app.get('/api/viprotein/informes/generar/:tipo', async (req, res) => {
+  const { tipo } = req.params;
+  if (!['diario', 'semanal', 'mensual'].includes(tipo)) {
+    return res.status(400).json({ error: 'Tipo debe ser diario, semanal o mensual' });
+  }
+  await generarYEnviarInforme(tipo);
+  res.json({ success: true, message: `Informe ${tipo} generado y enviado` });
+});
 app.get('/api/viprotein/:slug', async (req, res) => {
   try {
     const { slug } = req.params;
